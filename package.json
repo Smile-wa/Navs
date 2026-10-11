@@ -2,7 +2,7 @@
   "name": "yunest",
   "private": true,
   "version": "2.2.1",
-  "description": "YuNest - 个人导航中心，简洁优雅的静态导航网站",
+  "description": "Passage - 个人导航中心，简洁优雅的静态导航网站",
   "type": "module",
   "scripts": {
     "dev": "vite --host=0.0.0.0 --strictPort false",
