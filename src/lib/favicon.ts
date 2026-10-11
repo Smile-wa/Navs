@@ -72,3 +72,19 @@ export function normalizeIconUrl(url: string): string {
 export function isTransparentPlaceholder(img: HTMLImageElement): boolean {
   return img.naturalWidth <= 1 && img.naturalHeight <= 1;
 }
+/**
+ * 检测是否为 Iconify 格式（如 mdi:home、lucide:folder）
+ */
+export function isIconifyName(name: string): boolean {
+  return /^[a-z0-9-]+:[a-z0-9-]+$/i.test(name);
+}
+
+/**
+ * 将 Iconify 图标名转换为 SVG API 地址
+ * 例：mdi:home → https://api.iconify.design/mdi/home.svg
+ */
+export function getIconifyUrl(iconName: string): string {
+  if (!isIconifyName(iconName)) return '';
+  const [prefix, name] = iconName.split(':');
+  return `https://api.iconify.design/${prefix}/${name}.svg`;
+}
