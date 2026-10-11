@@ -10,7 +10,7 @@ import { Plus, Edit2, Trash2, FolderOpen, LayoutGrid, LayoutList, Eye, EyeOff, L
 import { Reorder, useDragControls } from 'motion/react';
 import { TRANSLATIONS } from '../../i18n/translations.ts';
 import ConfirmModal from '../../components/ConfirmModal.tsx';
-import { getFaviconProxyUrl, normalizeIconUrl, isTransparentPlaceholder } from '../../lib/favicon.ts';
+import { getFaviconProxyUrl, normalizeIconUrl, isTransparentPlaceholder, isIconifyName, getIconifyUrl } from '../../lib/favicon.ts';
 
 function CategoryTabItem({
   category,
