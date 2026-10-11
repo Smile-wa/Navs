@@ -10,7 +10,7 @@ import { Plus, Edit2, Trash2, FolderOpen, LayoutGrid, LayoutList, Eye, EyeOff, L
 import { Reorder, useDragControls } from 'motion/react';
 import { TRANSLATIONS } from '../../i18n/translations.ts';
 import ConfirmModal from '../../components/ConfirmModal.tsx';
-import { getFaviconProxyUrl, normalizeIconUrl, isTransparentPlaceholder, isIconifyName, getIconifyUrl } from '../../lib/favicon.ts';
+import { getFaviconProxyUrl, normalizeIconUrl, isTransparentPlaceholder } from '../../lib/favicon.ts';
 
 function CategoryTabItem({
   category,
@@ -31,7 +31,7 @@ function CategoryTabItem({
 
   const handlePointerDown = (e: React.PointerEvent) => {
     if (e.button !== 0 && e.pointerType === 'mouse') return;
-
+    
     startPosRef.current = { x: e.clientX, y: e.clientY };
     isDraggingRef.current = false;
 
@@ -441,7 +441,7 @@ export default function Bookmarks() {
   // 书签处理器
   const handleSaveBookmark = () => {
     if (!bookmarkForm.title || !activeCategory || !bookmarkForm.url) return;
-
+    
     const finalForm = { ...bookmarkForm, itemType: 'link' } as any;
     // 未填图标时自动补全为代理 URL，直接存代理格式（/api/icon-proxy?host=xxx）
     if (!finalForm.icon && finalForm.url) {
@@ -491,30 +491,6 @@ export default function Bookmarks() {
           onError={(e) => {
             const target = e.target as HTMLImageElement;
             if (!isProxyUrl && !target.getAttribute('data-retried') && siteUrl) {
-              const fav = getFaviconProxyUrl(siteUrl);
-              if (fav) {
-                target.setAttribute('data-retried', 'true');
-                target.src = fav;
-                return;
-              }
-            }
-            target.style.display = 'none';
-          }}
-        />
-      );
-    }
-
-    // 1.5 Iconify 格式（如 mdi:home、lucide:folder）
-    if (iconName && isIconifyName(iconName)) {
-      return (
-        <img
-          src={getIconifyUrl(iconName)}
-          className={`${size} object-contain rounded-sm`}
-          alt={iconName}
-          onError={(e) => {
-            const target = e.target as HTMLImageElement;
-            // Iconify 加载失败时，降级到站点 favicon
-            if (!target.getAttribute('data-retried') && siteUrl) {
               const fav = getFaviconProxyUrl(siteUrl);
               if (fav) {
                 target.setAttribute('data-retried', 'true');
@@ -715,7 +691,7 @@ export default function Bookmarks() {
                 />
                 <p className="text-xs text-slate-400 mt-1">
                   {t.categoryIconDesc.includes('支持') ? '支持 ' : 'Supports '}
-                  <a href="https://icon-sets.iconify.design/" target="_blank" rel="noopener noreferrer" className="text-[#ec5b13] hover:underline">{t.iconsLibrary}</a>
+                  <a href="https://lucide.dev/icons/" target="_blank" rel="noopener noreferrer" className="text-[#ec5b13] hover:underline">{t.iconsLibrary}</a> 
                   {t.categoryIconDesc.includes('支持') ? ' 或图片 URL' : ' or Image URL'}
                 </p>
               </div>
@@ -817,16 +793,10 @@ export default function Bookmarks() {
               </div>
               <div>
                 <label className="text-sm font-semibold text-slate-700">{t.bookmarkIcon}</label>
-                <input type="text" className="w-full mt-1.5 rounded-xl border-slate-200 bg-slate-50 px-4 py-3 outline-none border focus:ring-[#ec5b13] focus:border-[#ec5b13] transition-colors" placeholder="URL / Lucide / mdi:home" value={bookmarkForm.icon} onChange={(e) => setBookmarkForm({ ...bookmarkForm, icon: e.target.value })} />
+                <input type="text" className="w-full mt-1.5 rounded-xl border-slate-200 bg-slate-50 px-4 py-3 outline-none border focus:ring-[#ec5b13] focus:border-[#ec5b13] transition-colors" placeholder="URL / Lucide" value={bookmarkForm.icon} onChange={(e) => setBookmarkForm({ ...bookmarkForm, icon: e.target.value })} />
                 <div className="text-[11px] text-slate-400 mt-1.5 leading-relaxed">
                   <p>{t.autoFaviconTip}</p>
-                  <p>
-                    {state.settings.language === 'zh-CN' ? '点击 ' : 'Click '}
-                    <a href="https://icon-sets.iconify.design/" target="_blank" rel="noopener noreferrer" className="text-[#ec5b13] hover:underline font-medium">{t.iconsLibrary}</a>
-                    {state.settings.language === 'zh-CN' ? '，填入图标名（如 ' : ', enter icon name (e.g. '}
-                    <code className="bg-slate-100 px-1 rounded text-[#ec5b13]">mdi:home</code>
-                    {state.settings.language === 'zh-CN' ? '）' : ')'}
-                  </p>
+                  <p>{state.settings.language === 'zh-CN' ? '点击 ' : 'Click '} <a href="https://lucide.dev/icons/" target="_blank" rel="noopener noreferrer" className="text-[#ec5b13] hover:underline font-medium">{t.iconsLibrary}</a>，{state.settings.language === 'zh-CN' ? '跳转到图标库' : 'jump to icons library'}</p>
                 </div>
               </div>
             </div>
