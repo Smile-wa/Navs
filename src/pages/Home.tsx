@@ -98,8 +98,6 @@ export default function Home() {
   // ====== 侧边栏状态 ======
   const [activeSidebarId, setActiveSidebarId] = useState<string>('all');
   const [isCollapsed, setIsCollapsed] = useState(false);
-  
-  // ✨ 新增：移动端侧边栏抽屉打开状态 ✨
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   // ====== 侧边栏数据（完全由后台 categories 自动生成） ======
@@ -162,7 +160,7 @@ export default function Home() {
     root.style.setProperty('--glass-opacity', `${opacityValue}`);
   }, [settings.glassEffectOpacity]);
 
-  // ✨ 新增：选中分类后自动关闭移动端抽屉 ✨
+  // 选中分类后自动关闭移动端抽屉
   const handleSelectCategory = (id: string) => {
     setActiveSidebarId(id);
     setIsMobileSidebarOpen(false);
@@ -251,14 +249,14 @@ export default function Home() {
     return <Icons.Globe className={`${size} text-white/70`} />;
   };
 
-  // ====== 侧边栏内容（复用于桌面端和移动端抽屉） ======
+  // ====== 侧边栏内容（复用于桌面端和移动端抽屉，自动撑高显示所有分类） ======
   const renderSidebarContent = (isMobile: boolean = false) => {
     const collapsed = isMobile ? false : isCollapsed;
     
     return (
-      <div className="flex flex-col items-center gap-1.5 w-full px-3 py-4 rounded-3xl glass shadow-2xl overflow-hidden">
-        {/* 菜单列表 */}
-        <div className="flex flex-col items-center gap-1.5 w-full overflow-y-auto max-h-[65vh] pr-1 sidebar-scroll">
+      <div className="flex flex-col items-center gap-1.5 w-full px-3 py-4 rounded-3xl glass shadow-2xl">
+        {/* 菜单列表 —— 不设高度限制，让侧边栏完整显示所有分类 */}
+        <div className="flex flex-col items-center gap-1.5 w-full">
           
           {/* “全部” 入口 */}
           <div
@@ -290,7 +288,7 @@ export default function Home() {
           {/* 分隔线 */}
           <div className="w-full h-px bg-white/5 my-1 flex-shrink-0" />
 
-          {/* 动态分类 */}
+          {/* 动态分类（自动同步后台） */}
           {sidebarCategories.map((category) => {
             const isActive = activeSidebarId === category.id;
             return (
@@ -412,7 +410,7 @@ export default function Home() {
         </a>
       </div>
 
-      {/* ✨ 移动端汉堡按钮（左上角） ✨ */}
+      {/* 移动端汉堡按钮（左上角） */}
       <div className={`fixed top-6 left-4 z-50 md:hidden transition-all duration-500 ${
         isScrolled ? 'opacity-0 -translate-y-2 pointer-events-none' : 'opacity-100 translate-y-0'
       }`}>
@@ -440,14 +438,14 @@ export default function Home() {
         </button>
       </div>
 
-      {/* ====== 桌面端侧边栏（固定定位，上下居中，自动同步后台分类） ====== */}
+      {/* ====== 桌面端侧边栏（固定定位，上下居中，自动同步后台分类，完整显示所有分类） ====== */}
       <aside
-        className={`hidden md:flex fixed left-0 top-1/2 -translate-y-1/2 z-30 flex-col items-center transition-all duration-300 ease-in-out ${sidebarWidth} max-h-[85vh]`}
+        className={`hidden md:flex fixed left-0 top-1/2 -translate-y-1/2 z-30 flex-col items-center transition-all duration-300 ease-in-out ${sidebarWidth}`}
       >
         {renderSidebarContent(false)}
       </aside>
 
-      {/* ✨ 移动端抽屉式侧边栏 ✨ */}
+      {/* ====== 移动端抽屉式侧边栏 ====== */}
       {/* 遮罩层 */}
       <div
         className={`fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm md:hidden transition-opacity duration-300 ${
@@ -456,11 +454,12 @@ export default function Home() {
         onClick={() => setIsMobileSidebarOpen(false)}
       />
 
-      {/* 抽屉本体 */}
+      {/* 抽屉本体（移动端分类过多时，超过 90vh 才出现滚动） */}
       <aside
         className={`fixed left-0 top-1/2 -translate-y-1/2 z-[70] w-[260px] px-3 md:hidden transition-transform duration-300 ease-out ${
           isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
+        style={{ maxHeight: '90vh', overflowY: 'auto' }}
       >
         <div className="relative">
           {/* 关闭按钮 */}
@@ -472,7 +471,6 @@ export default function Home() {
             <X className="w-4 h-4" />
           </button>
           
-          {/* 侧边栏内容（复用桌面端逻辑，不折叠） */}
           {renderSidebarContent(true)}
         </div>
       </aside>
@@ -621,23 +619,25 @@ export default function Home() {
               <span className="tracking-wider uppercase select-none text-white/50">{t.builtBy}</span>
               <span className="text-white/30 select-none">•</span>
               <div className="flex items-center gap-3">
+                {/* 👇 个人博客链接：把 href 和文字换成你自己的 👇 */}
                 <a
-                  href="https://navdocs.072199.xyz/"
+                  href="https://你的博客地址.com"
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-1.5 text-white/70 hover:text-white transition-colors duration-200"
-                  title={t.docsTooltip}
+                  title="访问我的个人博客"
                 >
                   <BookOpen className="w-3.5 h-3.5 text-[#ec5b13]" />
-                  <span>{t.docSite}</span>
+                  <span>个人博客</span>
                 </a>
                 <span className="text-white/30 select-none">•</span>
+                {/* 👇 GitHub 链接：把 href 换成你自己的 👇 */}
                 <a
-                  href="https://github.com/YUME-0721/YuNest"
+                  href="https://github.com/你的用户名"
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-1.5 text-white/70 hover:text-white transition-colors duration-200"
-                  title={t.githubRepo}
+                  title="访问我的 GitHub"
                 >
                   <Github className="w-3.5 h-3.5" />
                   <span>GitHub</span>
