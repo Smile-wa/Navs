@@ -580,7 +580,7 @@ export default function Home() {
                         rel="noopener noreferrer"
                         onContextMenu={(e) => handleContextMenu(e, bookmark)}
                         className="flex items-center p-4 sm:p-5 rounded-2xl glass hover:bg-white/10 hover:-translate-y-0.5 hover:border-white/15 transition-all duration-300 group min-w-0"
-                        style={{ height: '110px' }}
+                        style={{ height: '90px' }}
                       >
                         <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-white/5 flex items-center justify-center mr-3 sm:mr-4 group-hover:bg-white/10 transition-colors duration-300 shrink-0">
                           {renderIcon(bookmark.icon, bookmark.url, 'w-6 h-6 sm:w-7 sm:h-7')}
