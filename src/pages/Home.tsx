@@ -254,9 +254,15 @@ export default function Home() {
     const collapsed = isMobile ? false : isCollapsed;
     
     return (
-      <div className="flex flex-col items-center gap-1.5 w-full px-3 py-4 rounded-3xl glass shadow-2xl">
-        {/* 菜单列表 —— 不设高度限制，让侧边栏完整显示所有分类 */}
-        <div className="flex flex-col items-center gap-1.5 w-full">
+      <div
+        className="flex flex-col items-center gap-1.5 w-full px-3 py-4 rounded-3xl glass shadow-2xl"
+        style={{ maxHeight: '85vh' }}
+      >
+        {/* 菜单列表 —— 分类过多时出现内部滚动，防止被切掉 */}
+        <div
+          className="flex flex-col items-center gap-1.5 w-full overflow-y-auto sidebar-scroll"
+          style={{ maxHeight: '70vh' }}
+        >
           
           {/* “全部” 入口 */}
           <div
@@ -273,10 +279,10 @@ export default function Home() {
             }`} />
             {!collapsed && (
               <>
-                <span className="ml-3 flex-1 text-[13px] font-medium tracking-wide text-left truncate">
+                <span className="ml-3 flex-1 text-[14px] font-medium tracking-wide text-left truncate">
                   全部
                 </span>
-                <span className={`text-[11px] font-mono ml-1 ${
+                <span className={`text-[12px] font-mono ml-1 ${
                   activeSidebarId === 'all' ? 'text-white/60' : 'text-white/25'
                 }`}>
                   {sidebarCategories.reduce((sum, c) => sum + c.bookmarks.length, 0)}
@@ -308,10 +314,10 @@ export default function Home() {
 
                 {!collapsed && (
                   <>
-                    <span className="ml-3 flex-1 text-[13px] font-medium tracking-wide text-left truncate">
+                    <span className="ml-3 flex-1 text-[14px] font-medium tracking-wide text-left truncate">
                       {category.title}
                     </span>
-                    <span className={`text-[11px] font-mono ml-1 ${
+                    <span className={`text-[12px] font-mono ml-1 ${
                       isActive ? 'text-white/60' : 'text-white/25'
                     }`}>
                       {category.bookmarks.length}
@@ -335,7 +341,7 @@ export default function Home() {
             ) : (
               <>
                 <ChevronLeft className="w-4 h-4" />
-                <span className="ml-2 text-[12px] font-medium">收起</span>
+                <span className="ml-2 text-[13px] font-medium">收起</span>
               </>
             )}
           </button>
@@ -344,10 +350,10 @@ export default function Home() {
     );
   };
 
-  const sidebarWidth = isCollapsed ? 'w-[72px]' : 'w-[220px]';
+  const sidebarWidth = isCollapsed ? 'w-[72px]' : 'w-[230px]';
 
   return (
-    <div className="text-white min-h-screen font-sans selection:bg-white/20 relative overflow-hidden">
+    <div className="text-white min-h-screen font-sans selection:bg-white/20 relative">
       {/* 背景壁纸层 */}
       <div className="fixed inset-0 z-0 overflow-hidden bg-[#0a0a0a]" 
         style={settings.wallpaperType === 'color' ? { backgroundColor: settings.backgroundColor } : {}}>
@@ -397,11 +403,11 @@ export default function Home() {
         }`}
       >
         <a
-          href="https://myblog.xwgt.xyz/"
+          href="https://navdocs.072199.xyz/"
           target="_blank"
           rel="noreferrer"
           className="group flex items-center gap-2 no-underline cursor-pointer"
-          title="访问我的博客"
+          title={t.docsTooltip}
         >
           <h1 className="text-lg font-medium tracking-[0.15em] text-white/60 group-hover:text-white transition-colors duration-300 uppercase flex items-center gap-1.5">
             {settings.siteName}
@@ -456,7 +462,7 @@ export default function Home() {
 
       {/* 抽屉本体（移动端分类过多时，超过 90vh 才出现滚动） */}
       <aside
-        className={`fixed left-0 top-1/2 -translate-y-1/2 z-[70] w-[260px] px-3 md:hidden transition-transform duration-300 ease-out ${
+        className={`fixed left-0 top-1/2 -translate-y-1/2 z-[70] w-[280px] px-3 md:hidden transition-transform duration-300 ease-out ${
           isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
         style={{ maxHeight: '90vh', overflowY: 'auto' }}
@@ -475,15 +481,19 @@ export default function Home() {
         </div>
       </aside>
 
-      {/* ====== 右侧主内容区 ====== */}
+      {/* ====== 右侧主内容区（用 pl 让出侧边栏空间，宽度自适应） ====== */}
       <div 
         className={`relative z-10 flex min-h-screen transition-all duration-300 ${
-          isCollapsed ? 'md:pl-[72px]' : 'md:pl-[220px]'
-        }`}
+          isCollapsed ? 'md:pl-[72px]' : 'md:pl-[230px]'
+        } w-full`}
+        style={{ minWidth: 0 }}
       >
-        <main className={`flex-1 flex flex-col items-center justify-start min-h-screen px-4 sm:px-6 ${
-          widgets && widgets.length > 0 ? 'pt-6 sm:pt-10' : 'pt-16 sm:pt-24'
-        }`}>
+        <main
+          className={`flex-1 flex flex-col items-center justify-start min-h-screen px-4 sm:px-6 w-full ${
+            widgets && widgets.length > 0 ? 'pt-6 sm:pt-10' : 'pt-16 sm:pt-24'
+          }`}
+          style={{ minWidth: 0 }}
+        >
 
           {/* 移动端标题 */}
           <header className="text-center mb-8 animate-fade-in sm:hidden" style={{ animationDelay: '0.1s' }}>
@@ -541,9 +551,9 @@ export default function Home() {
           )}
 
           {/* 书签分组 */}
-          <div className="w-full max-w-7xl flex flex-col gap-12 pb-24">
+          <div className="w-full flex flex-col gap-14 pb-24 px-1">
             {visibleCategories.length === 0 ? (
-              <div className="text-center text-white/40 text-sm py-20 animate-fade-in">
+              <div className="text-center text-white/40 text-base py-20 animate-fade-in">
                 该分类下暂无内容
               </div>
             ) : (
@@ -553,61 +563,42 @@ export default function Home() {
                   className="animate-fade-in-scale"
                   style={{ animationDelay: `${0.4 + catIndex * 0.1}s` }}
                 >
-                  <h2 className="text-sm font-bold uppercase tracking-[0.25em] text-white/50 px-3 mb-6 flex items-center gap-3">
+                  {/* 分类标题（字号放大） */}
+                  <h2 className="text-base sm:text-lg font-bold uppercase tracking-[0.2em] text-white/60 px-3 mb-6 flex items-center gap-3">
                     {renderIcon(category.icon, undefined, 'w-5 h-5')}
                     {category.title}
-                    <span className="text-white/20 font-medium text-xs">({category.bookmarks.length})</span>
+                    <span className="text-white/25 font-medium text-sm">({category.bookmarks.length})</span>
                   </h2>
 
-                  {category.layout === 'grid' ? (
-                    <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 gap-3 sm:gap-4 px-1">
-                      {category.bookmarks.map((bookmark) => (
-                        <a
-                          key={bookmark.id}
-                          href={bookmark.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onContextMenu={(e) => handleContextMenu(e, bookmark)}
-                          className="flex flex-col items-center justify-center group w-full h-full col-span-1 row-span-1 aspect-square glass rounded-2xl p-2 hover:bg-white/10 hover:border-white/20 transition-all duration-300"
-                        >
-                          <div className="w-14 h-14 rounded-2xl flex items-center justify-center group-hover:-translate-y-1 transition-transform duration-300">
-                            {renderIcon(bookmark.icon, bookmark.url, 'w-8 h-8')}
-                          </div>
-                          <span className="text-[12px] mt-1 font-medium text-white/50 group-hover:text-white transition-colors duration-300 text-center truncate w-full px-1">
+                  {/* ====== 统一卡片样式：grid 和 list 都用同一套紧凑卡片，高度固定 110px ====== */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-5 px-1 items-start w-full min-w-0">
+                    {category.bookmarks.map((bookmark) => (
+                      <a
+                        key={bookmark.id}
+                        href={bookmark.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onContextMenu={(e) => handleContextMenu(e, bookmark)}
+                        className="flex items-center p-4 sm:p-5 rounded-2xl glass hover:bg-white/10 hover:-translate-y-0.5 hover:border-white/15 transition-all duration-300 group min-w-0"
+                        style={{ height: '110px' }}
+                      >
+                        <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-white/5 flex items-center justify-center mr-3 sm:mr-4 group-hover:bg-white/10 transition-colors duration-300 shrink-0">
+                          {renderIcon(bookmark.icon, bookmark.url, 'w-6 h-6 sm:w-7 sm:h-7')}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm sm:text-base font-bold text-white group-hover:text-white transition-colors duration-300 truncate">
                             {bookmark.title}
-                          </span>
-                        </a>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 px-1">
-                      {category.bookmarks.map((bookmark) => (
-                        <a
-                          key={bookmark.id}
-                          href={bookmark.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onContextMenu={(e) => handleContextMenu(e, bookmark)}
-                          className="flex items-center p-3 sm:p-4 rounded-2xl glass hover:bg-white/10 hover:-translate-y-0.5 hover:border-white/15 transition-all duration-300 group min-w-0"
-                        >
-                          <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-white/5 flex items-center justify-center mr-2.5 sm:mr-4 group-hover:bg-white/10 transition-colors duration-300 shrink-0">
-                            {renderIcon(bookmark.icon, bookmark.url, 'w-5 h-5 sm:w-6 sm:h-6')}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs sm:text-sm font-bold text-white group-hover:text-white transition-colors duration-300 truncate">
-                              {bookmark.title}
+                          </p>
+                          {bookmark.description && (
+                            <p className="text-[11px] sm:text-xs text-white/50 uppercase tracking-wider mt-0.5 truncate">
+                              {bookmark.description}
                             </p>
-                            {bookmark.description && (
-                              <p className="text-[9px] sm:text-[10px] text-white/50 uppercase tracking-wider mt-0.5 truncate">
-                                {bookmark.description}
-                              </p>
-                            )}
-                          </div>
-                          <ExternalLink className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-white/0 group-hover:text-white/30 transition-all duration-300 shrink-0 ml-1 sm:ml-2 hidden sm:block" />
-                        </a>
-                      ))}
-                    </div>
-                  )}
+                          )}
+                        </div>
+                        <ExternalLink className="w-4 h-4 sm:w-5 sm:h-5 text-white/0 group-hover:text-white/30 transition-all duration-300 shrink-0 ml-2 hidden sm:block" />
+                      </a>
+                    ))}
+                  </div>
                 </section>
               ))
             )}
@@ -615,31 +606,31 @@ export default function Home() {
 
           {/* 页脚 */}
           <footer className="mt-auto pt-8 pb-10 text-center animate-fade-in flex flex-col items-center gap-3.5" style={{ animationDelay: '1.2s' }}>
-            <div className="inline-flex items-center gap-2 sm:gap-3 text-[11px] sm:text-xs text-white/55 font-medium drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
+            <div className="inline-flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-white/60 font-medium drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
               <span className="tracking-wider uppercase select-none text-white/50">{t.builtBy}</span>
               <span className="text-white/30 select-none">•</span>
               <div className="flex items-center gap-3">
                 {/* 👇 个人博客链接：把 href 和文字换成你自己的 👇 */}
                 <a
-                  href="https://myblog.xwgt.xyz/"
+                  href="https://你的博客地址.com"
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-1.5 text-white/70 hover:text-white transition-colors duration-200"
                   title="访问我的个人博客"
                 >
-                  <BookOpen className="w-3.5 h-3.5 text-[#ec5b13]" />
+                  <BookOpen className="w-4 h-4 text-[#ec5b13]" />
                   <span>个人博客</span>
                 </a>
                 <span className="text-white/30 select-none">•</span>
                 {/* 👇 GitHub 链接：把 href 换成你自己的 👇 */}
                 <a
-                  href="https://github.com/Smile-wa/YuNest"
+                  href="https://github.com/你的用户名"
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-1.5 text-white/70 hover:text-white transition-colors duration-200"
                   title="访问我的 GitHub"
                 >
-                  <Github className="w-3.5 h-3.5" />
+                  <Github className="w-4 h-4" />
                   <span>GitHub</span>
                 </a>
               </div>
