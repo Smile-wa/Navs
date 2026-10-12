@@ -1,25 +1,16 @@
 <div align="center">
-    <p>
-        简体中文 | <a href="README.md">English</a> | <a href="https://navdocs.072199.xyz/">文档官网</a>
-    </p>
-    <p align="center">
-    <img src="https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React" />
-    <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
-    <img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" />
-    <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="TailwindCSS" />
-    <img src="https://img.shields.io/badge/Cloudflare_Pages-F38020?style=for-the-badge&logo=cloudflare-pages&logoColor=white" alt="Cloudflare" />
-  </p>
-  <h1>YuNest - 个人导航主页</h1>
-  <p><strong><a href="https://nav.072199.xyz/">🚀 点击访问示例站点</a></strong>（认证密码：<code>admin1234</code>）</p>
+
+  <h1>Navs - 个人导航主页</h1>
+  <p><strong><a href="https://navs.xwgt.xyz/">🚀 点击访问示例站点</a></strong></p>
   <p>一个现代、美观且高度可定制的个人静态导航与书签管理工具。</p>
-  <p>因为 YuNest 是一个纯前端的静态应用，你可以轻松进行 <a href="#-本地运行与开发-local-development">本地部署</a> 或 <a href="#-静态托管云部署-cloud-deployment">静态托管云部署</a>（点击跳转）。</p>
+  <p>因为 Navs 是一个纯前端的静态应用，你可以轻松进行 <a href="#-本地运行与开发-local-development">本地部署</a> 或 <a href="#-静态托管云部署-cloud-deployment">静态托管云部署</a>（点击跳转）。</p>
 </div>
 
 ![Home Screenshot](screenshots/homepage.png)
 
 ## ✨ 特性 (Features)
 
-YuNest 专注于提供最优雅的起始页体验，所有内容均保存在浏览器本地，无需后台数据库。
+Navs 专注于提供最优雅的起始页体验，所有内容均保存在浏览器本地，无需后台数据库。
 
 - 🎨 **极具美感的设计**: 采用毛玻璃（Glassmorphism）与弥散光风格设计，搭配丝滑流畅的入场及悬浮微动效，极简而不失质感。
 - 🖼️ **强大的壁纸与背景管理**: 
