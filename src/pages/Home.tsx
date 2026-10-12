@@ -621,7 +621,7 @@ export default function Home() {
               <div className="flex items-center gap-3">
                 {/* 👇 个人博客链接：把 href 和文字换成你自己的 👇 */}
                 <a
-                  href="https://你的博客地址.com"
+                  href="https://myblog.xwgt.xyz/"
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-1.5 text-white/70 hover:text-white transition-colors duration-200"
@@ -633,7 +633,7 @@ export default function Home() {
                 <span className="text-white/30 select-none">•</span>
                 {/* 👇 GitHub 链接：把 href 换成你自己的 👇 */}
                 <a
-                  href="https://github.com/你的用户名"
+                  href="https://github.com/Smile-wa/YuNest"
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-1.5 text-white/70 hover:text-white transition-colors duration-200"
