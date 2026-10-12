@@ -397,11 +397,11 @@ export default function Home() {
         }`}
       >
         <a
-          href="https://navdocs.072199.xyz/"
+          href="https://myblog.xwgt.xyz/"
           target="_blank"
           rel="noreferrer"
           className="group flex items-center gap-2 no-underline cursor-pointer"
-          title={t.docsTooltip}
+          title="访问我的博客"
         >
           <h1 className="text-lg font-medium tracking-[0.15em] text-white/60 group-hover:text-white transition-colors duration-300 uppercase flex items-center gap-1.5">
             {settings.siteName}
