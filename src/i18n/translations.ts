@@ -1,11 +1,9 @@
 /**
  * 🌍 国际化词典配置
- * NOTE: 集中管理所有界面的中英文文案，通过 Settings 中的 language 字段动态切换
  */
 
 export const TRANSLATIONS = {
   'zh-CN': {
-    // 首页
     siteDescription: '一个现代、美观且高度可定制的个人静态导航与书签管理工具。',
     searchPlaceholder: '在 {engine} 中搜索...',
     adminAuthTitle: '管理认证',
@@ -19,12 +17,11 @@ export const TRANSLATIONS = {
     lanUrl: '内网地址',
     lanUrlDesc: '局域网/私有访问',
     settingsIcon: '登录',
-    builtBy: 'Handcrafted with passion by YUME © 2026',
+    builtBy: 'Handcrafted with passion by Smile-wa © 2026',
     searchDropdownInEngine: '在 {engine} 中搜索 "{query}"',
     searchDropdownNoMatch: '未找到匹配书签，按 Enter 在 {engine} 中搜索',
     searchDropdownHint: '↑ ↓ 选择 · ↵ 跳转 · ESC 关闭',
 
-    // 后台通用
     backToHome: '返回首页',
     saveSettings: '保存设置',
     saved: '已保存',
@@ -32,14 +29,12 @@ export const TRANSLATIONS = {
     resetSettingsConfirm: '确定要重置所有个性化设置吗？这会将网站名称、壁纸和视觉效果恢复为出厂状态。',
     siteNav: '导航页',
 
-    // 侧边栏
     navPersonalization: '个性化设置',
     navBookmarks: '管理标签',
     navWallpaper: '壁纸与背景',
     navBackup: '备份与还原',
     navFeedback: '关于与反馈',
 
-    // 个性化设置
     basicSettings: '基本设置',
     siteNameLabel: '网站名称',
     siteNamePlaceholder: '请输入网站名称',
@@ -52,7 +47,7 @@ export const TRANSLATIONS = {
     appearanceSettings: '外观设置',
     glassEffectLabel: '玻璃拟态效果',
     glassEffectDesc: '磨砂玻璃般的模糊透明质感',
-     darkMaskLabel: '背景暗色遮罩',
+    darkMaskLabel: '背景暗色遮罩',
     darkMaskDesc: '加深上下边缘阴影，显著增强文字识别度',
     glassOpacityLabel: '玻璃拟态强度',
     maskOpacityLabel: '暗色遮罩强度',
@@ -67,7 +62,11 @@ export const TRANSLATIONS = {
     alignCenter: '居中对齐',
     alignRight: '右对齐',
 
-    // 管理标签
+    // ===== 卡片尺寸 =====
+    cardHeightLabel: '卡片高度',
+    cardWidthLabel: '卡片宽度',
+    cardSizeDesc: '控制前台书签卡片的显示尺寸（像素）',
+
     manageTagsTitle: '管理标签',
     manageTagsDesc: '高度自由地编排您的导航分类与书签链接',
     bookmarksTitle: '书签目录管理',
@@ -124,7 +123,6 @@ export const TRANSLATIONS = {
     emptyCategoriesDesc: '点击上方「添加分类」创建第一个分组',
     dragToReorderTip: '按住或长按标签分组/站点卡片，可直接拖动吸附调整排序',
 
-    // 壁纸设置
     wallpaperTitle: '壁纸与背景',
     wallpaperDesc: '为您的导航页选择最完美的视觉背景',
     wallpaperType: '壁纸来源类型',
@@ -138,7 +136,6 @@ export const TRANSLATIONS = {
     uploadLimit: '图片大小不能超过 5MB',
     previewLabel: '实时预览',
 
-    // 备份反馈
     backupTitle: '备份与还原',
     backupDesc: '保护您的数据安全，跨设备同步书签配置',
     categoriesCount: '分类总数',
@@ -174,7 +171,6 @@ export const TRANSLATIONS = {
     importError: '解析文件失败，请确保格式正确',
     resetConfirm: '确定要重置所有数据吗？此操作不可撤销！',
 
-    // 关于反馈
     feedbackTitle: '关于与反馈',
     feedbackDesc: '了解 YuNest 项目详情，联系作者进行问题反馈或功能建议',
     aboutAuthor: '关于作者',
@@ -192,7 +188,6 @@ export const TRANSLATIONS = {
     copied: '已复制!',
   },
   'en-US': {
-    // Home
     siteDescription: 'A modern, beautiful, and highly customizable personal static navigation tool.',
     searchPlaceholder: 'Search in {engine}...',
     adminAuthTitle: 'Admin Auth',
@@ -215,7 +210,6 @@ export const TRANSLATIONS = {
     docsTooltip: 'Click to visit YuNest documentation',
     githubLabel: 'GitHub Repo',
 
-    // Admin Common
     backToHome: 'Back to Home',
     saveSettings: 'Save Settings',
     saved: 'Saved',
@@ -223,14 +217,12 @@ export const TRANSLATIONS = {
     resetSettingsConfirm: 'Are you sure you want to reset all personalization settings? This will restore site name, wallpaper, and visual effects to defaults.',
     siteNav: 'Navigation',
 
-    // Sidebar
     navPersonalization: 'Personalization',
     navBookmarks: 'Bookmarks',
     navWallpaper: 'Wallpaper',
     navBackup: 'Backup & Sync',
     navFeedback: 'Feedback',
 
-    // Settings
     basicSettings: 'General Settings',
     siteNameLabel: 'Site Name',
     siteNamePlaceholder: 'Enter site name',
@@ -258,7 +250,11 @@ export const TRANSLATIONS = {
     alignCenter: 'Center Align',
     alignRight: 'Right Align',
 
-    // Bookmarks
+    // ===== Card Size =====
+    cardHeightLabel: 'Card Height',
+    cardWidthLabel: 'Card Width',
+    cardSizeDesc: 'Control the display size of bookmark cards on the front page (px)',
+
     manageTagsTitle: 'Manage Bookmarks',
     manageTagsDesc: 'Organize your navigation categories and bookmark links freely',
     bookmarksTitle: 'Bookmarks Management',
@@ -315,7 +311,6 @@ export const TRANSLATIONS = {
     emptyCategoriesDesc: 'Click "Add Category" to create your first group',
     dragToReorderTip: 'Press & hold or drag tabs/site cards to reorder',
 
-    // Wallpaper
     wallpaperTitle: 'Wallpaper & Background',
     wallpaperDesc: 'Choose the perfect visual backdrop for your navigation hub',
     wallpaperType: 'Wallpaper Type',
@@ -329,7 +324,6 @@ export const TRANSLATIONS = {
     uploadLimit: 'File size must be under 5MB',
     previewLabel: 'Live Preview',
 
-    // Backup
     backupTitle: 'Backup & Restore',
     backupDesc: 'Secure your data and sync bookmarks across devices',
     categoriesCount: 'Total Categories',
@@ -365,7 +359,6 @@ export const TRANSLATIONS = {
     importError: 'Failed to parse file, ensure it is valid JSON',
     resetConfirm: 'Are you sure you want to reset all data? This cannot be undone!',
 
-    // Feedback
     feedbackTitle: 'About & Feedback',
     feedbackDesc: 'Learn core project details and contact the author for issues',
     aboutAuthor: 'About Author',
