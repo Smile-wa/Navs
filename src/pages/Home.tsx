@@ -271,14 +271,14 @@ export default function Home() {
             {!collapsed && <span className="text-[13px] font-medium">设置</span>}
           </button>
           <a
-            href="https://navdocs.072199.xyz/"
+            href="https://myblog.xwgt.xyz/"
             target="_blank"
             rel="noreferrer"
             title={t.docsTooltip}
             className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-white/50 hover:text-white hover:bg-white/5 transition-all duration-300 no-underline"
           >
             <BookOpen className="w-4 h-4" />
-            {!collapsed && <span className="text-[13px] font-medium">文档</span>}
+            {!collapsed && <span className="text-[13px] font-medium">博客</span>}
           </a>
         </div>
 
