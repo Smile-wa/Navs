@@ -78,9 +78,15 @@ export default function Home() {
   // ====== 前台卡片配置（长宽独立） ======
   const cardHeight = settings.cardHeight || 80;
   const cardWidth = settings.cardWidth || 240;
-  const iconBoxSize = Math.max(28, Math.round(cardHeight * 0.55));
-  const titleFontSize = cardHeight < 70 ? 'text-xs' : cardHeight < 110 ? 'text-sm' : 'text-base';
-  const descFontSize = cardHeight < 70 ? 'text-[10px]' : 'text-[11px]';
+
+  // 图标盒尺寸
+  const iconBoxSize = Math.max(28, Math.round(cardHeight * 0.56));
+
+  // 标题字号（像素值，随卡片高度线性变化）
+  const titleFontPx = Math.max(13, Math.round(cardHeight * 0.19));
+
+  // 描述字号（像素值，随卡片高度线性变化）
+  const descFontPx = Math.max(11, Math.round(cardHeight * 0.14));
 
   const sidebarCategories = useMemo(() => {
     return categories
@@ -271,10 +277,10 @@ export default function Home() {
             {!collapsed && <span className="text-[13px] font-medium">设置</span>}
           </button>
           <a
-            href="https://myblog.xwgt.xyz/"
+            href="https://myblog.xwgt.xyz"
             target="_blank"
             rel="noreferrer"
-            title={t.docsTooltip}
+            title="访问我的博客"
             className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-white/50 hover:text-white hover:bg-white/5 transition-all duration-300 no-underline"
           >
             <BookOpen className="w-4 h-4" />
@@ -397,11 +403,11 @@ export default function Home() {
           {/* 移动端标题 */}
           <header className="text-center mb-8 animate-fade-in sm:hidden" style={{ animationDelay: '0.1s' }}>
             <a
-              href="https://navdocs.072199.xyz/"
+              href="https://myblog.xwgt.xyz"
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-1 text-xs font-bold tracking-[0.4em] text-white/40 hover:text-white/80 uppercase no-underline transition-colors"
-              title={t.docsTooltip}
+              title="访问我的博客"
             >
               {settings.siteName}
             </a>
@@ -481,6 +487,7 @@ export default function Home() {
                           maxWidth: '100%',
                         }}
                       >
+                        {/* 图标盒 */}
                         <div
                           className="rounded-xl bg-white/5 flex items-center justify-center mr-3 group-hover:bg-white/10 transition-colors duration-300 shrink-0"
                           style={{ width: `${iconBoxSize}px`, height: `${iconBoxSize}px` }}
@@ -492,11 +499,19 @@ export default function Home() {
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className={`${titleFontSize} font-bold text-white group-hover:text-white transition-colors duration-300 truncate`}>
+                          {/* 标题：字号由像素值控制 */}
+                          <p
+                            className="font-bold text-white group-hover:text-white transition-colors duration-300 truncate"
+                            style={{ fontSize: `${titleFontPx}px` }}
+                          >
                             {bookmark.title}
                           </p>
+                          {/* 描述：颜色更亮、去掉全大写、间距加大 */}
                           {bookmark.description && cardHeight >= 70 && (
-                            <p className={`${descFontSize} text-white/50 uppercase tracking-wider mt-0.5 truncate`}>
+                            <p
+                              className="text-white/65 tracking-wide mt-1 truncate"
+                              style={{ fontSize: `${descFontPx}px` }}
+                            >
                               {bookmark.description}
                             </p>
                           )}
