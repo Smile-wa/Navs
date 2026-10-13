@@ -179,7 +179,7 @@ export const TRANSLATIONS = {
     githubRepo: 'GitHub 仓库',
     docSite: '官方文档',
     viewDocs: '查看使用文档',
-    docsTooltip: '点击访问 YuNest 项目官方文档',
+    docsTooltip: '点击访问 Navs 项目官方文档',
     githubLabel: 'GitHub 源码',
     licenseLabel: '开源协议',
     nonCommercial: '自由软件：本项目遵循 GPL-3.0 开源协议，您可以自由地运行、学习、共享和修改。',
@@ -207,7 +207,7 @@ export const TRANSLATIONS = {
     searchDropdownHint: '↑ ↓ Select · ↵ Open · ESC Close',
     docSite: 'Docs',
     viewDocs: 'View Documentation',
-    docsTooltip: 'Click to visit YuNest documentation',
+    docsTooltip: 'Click to visit Navs documentation',
     githubLabel: 'GitHub Repo',
 
     backToHome: 'Back to Home',
