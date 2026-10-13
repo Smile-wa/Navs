@@ -10,10 +10,10 @@ export default function Feedback() {
   const [copied, setCopied] = useState(false);
 
   const AUTHOR_INFO = {
-    name: 'YUME',
-    avatar: 'https://img.072199.xyz/file/1773310074248.webp',
-    email: 'yume@072199.xyz',
-    github: 'https://github.com/YUME-0721',
+    name: 'Smile-wa',
+    avatar: 'https://cloudimgs.xwgt.xyz/api/images/%E5%9B%BE%E6%A0%87/R-C.png',
+    email: 'xiaowtx2026@outlook.com',
+    github: 'https://github.com/Smile-wa',
   };
 
   const handleCopyEmail = () => {
@@ -23,8 +23,8 @@ export default function Feedback() {
   };
 
   const PROJECT_INFO = {
-    name: 'YuNest',
-    repo: 'https://github.com/YUME-0721/YuNest',
+    name: 'Navs',
+    repo: 'https://github.com/Smile-wa/navs',
     license: 'GPL-3.0',
     description: t.siteDescription,
   };
@@ -88,7 +88,7 @@ export default function Feedback() {
         {/* 项目信息卡片 */}
         <section className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
           <a 
-            href="https://navdocs.072199.xyz/" 
+            href="https://myblog.xwgt.xyz/" 
             target="_blank" 
             rel="noreferrer"
             className="absolute top-6 right-6 p-2.5 rounded-xl bg-slate-50 hover:bg-[#ec5b13]/10 text-slate-400 hover:text-[#ec5b13] transition-all group/docs border-none cursor-pointer"
