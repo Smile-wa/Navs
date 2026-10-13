@@ -155,7 +155,7 @@ function CategoryTabsReorderList({
       axis="x"
       values={items}
       onReorder={handleReorder}
-      className="flex flex-wrap items-center gap-1.5"
+      className="flex flex-wrap items-center gap-1.5 min-w-0 w-full"
     >
       {items.map((category) => (
         <CategoryTabItem
@@ -530,7 +530,7 @@ export default function Bookmarks() {
   };
 
   return (
-    <div className="p-6 sm:p-8 max-w-6xl mx-auto space-y-8">
+    <div className="p-6 sm:p-8 max-w-6xl mx-auto space-y-8 min-w-0">
       {/* 页面标题 */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div className="space-y-1">
@@ -555,7 +555,7 @@ export default function Bookmarks() {
 
       {/* 分类标签页（长按/拖拽吸附排序，自动换行） */}
       {state.categories.length > 0 && (
-        <div className="flex flex-wrap items-center gap-2 pt-3 pb-3 px-1.5 -my-2">
+        <div className="flex flex-wrap items-center gap-2 pt-3 pb-3 px-1.5 -my-2 min-w-0 w-full">
           <CategoryTabsReorderList
             categories={state.categories}
             activeCategory={activeCategory}
