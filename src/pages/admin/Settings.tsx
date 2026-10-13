@@ -1,6 +1,5 @@
 /**
  * 个性化设置页面
- * NOTE: 管理网站名称、搜索引擎、壁纸配置（固定/API/本地上传）、视觉效果
  */
 
 import React, { useState, useRef } from 'react';
@@ -18,7 +17,6 @@ export default function Settings() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
 
-  // 小组件模态框状态
   const [isWidgetModalOpen, setIsWidgetModalOpen] = useState(false);
   const [editingWidget, setEditingWidget] = useState<Bookmark | null>(null);
   const [widgetForm, setWidgetForm] = useState<{ title: string; size: string; widgetType: string; showBackground?: boolean; wrapLine?: boolean; }>({
@@ -30,11 +28,8 @@ export default function Settings() {
                   widgetForm.widgetType === 'search' ? 'Search' :
                   widgetForm.widgetType === 'weather' ? 'Weather' : 'Widget';
     const finalForm = { ...widgetForm, title, itemType: 'widget', url: '', icon: '' } as any;
-    if (editingWidget) {
-      updateWidget(editingWidget.id, finalForm);
-    } else {
-      addWidget(finalForm);
-    }
+    if (editingWidget) updateWidget(editingWidget.id, finalForm);
+    else addWidget(finalForm);
     setIsWidgetModalOpen(false);
     setEditingWidget(null);
     setWidgetForm({ title: 'Clock', size: '2x1', widgetType: 'clock', showBackground: false, wrapLine: false });
@@ -63,26 +58,17 @@ export default function Settings() {
     setTimeout(() => setSaved(false), 2000);
   };
 
-  const handleReset = () => {
-    setIsResetModalOpen(true);
-  };
+  const handleReset = () => setIsResetModalOpen(true);
 
   const confirmReset = () => {
     setLocalSettings(DEFAULT_SETTINGS);
     setPreviewUrl(DEFAULT_SETTINGS.wallpaperUrl);
   };
 
-  /** 处理本地壁纸上传——转为 base64 存入 localStorage */
   const handleLocalWallpaper = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    // NOTE: 限制文件大小，localStorage 空间有限
-    if (file.size > 5 * 1024 * 1024) {
-      alert(t.uploadLimit);
-      return;
-    }
-
+    if (file.size > 5 * 1024 * 1024) { alert(t.uploadLimit); return; }
     const reader = new FileReader();
     reader.onload = (event) => {
       const base64 = event.target?.result as string;
@@ -92,7 +78,6 @@ export default function Settings() {
     reader.readAsDataURL(file);
   };
 
-  /** 刷新壁纸预览（对 API 类型附加时间戳） */
   const refreshPreview = () => {
     if (localSettings.wallpaperType === 'api') {
       const url = localSettings.wallpaperUrl || 'https://pic.yumekai.top/pic?img=ua';
@@ -106,9 +91,7 @@ export default function Settings() {
   };
 
   const getEffectivePreviewUrl = () => {
-    if (localSettings.wallpaperType === 'local') {
-      return localSettings.localWallpaper || previewUrl;
-    }
+    if (localSettings.wallpaperType === 'local') return localSettings.localWallpaper || previewUrl;
     return previewUrl || localSettings.wallpaperUrl || 'https://pic.yumekai.top/pic?img=ua';
   };
 
@@ -145,15 +128,13 @@ export default function Settings() {
                 <Search className="w-4 h-4 text-slate-400" />
                 {t.searchEngineLabel}
               </label>
-              
+
               <div className="flex overflow-x-auto pb-4 gap-4 px-1 -mx-1 scrollbar-hide">
                 {PRESET_SEARCH_ENGINES.map((engine) => (
                   <button
                     key={engine.id}
                     type="button"
-                    onClick={() => {
-                      setLocalSettings({ ...localSettings, searchEngine: engine.url });
-                    }}
+                    onClick={() => setLocalSettings({ ...localSettings, searchEngine: engine.url })}
                     className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all shrink-0 min-w-[72px] ${
                       localSettings.searchEngine === engine.url
                         ? 'bg-[#ec5b13]/10 border-[#ec5b13] ring-1 ring-[#ec5b13]'
@@ -169,11 +150,9 @@ export default function Settings() {
                   </button>
                 ))}
 
-                {/* 其他搜索引擎 */}
                 <button
                   type="button"
                   onClick={() => {
-                    // 如果当前选中的是预设，点击“其他”时清空输入，强制显示自定义框
                     if (PRESET_SEARCH_ENGINES.some(e => e.url === localSettings.searchEngine)) {
                       setLocalSettings({ ...localSettings, searchEngine: '' });
                     }
@@ -213,18 +192,13 @@ export default function Settings() {
               )}
             </div>
 
-            {/* 认证跳转开关 */}
             <div className="flex items-center justify-between pt-4 border-t border-slate-100">
               <div className="flex items-center gap-2">
                 <label className="text-sm font-semibold text-slate-800">{t.authRedirectLabel}</label>
                 <div className="relative group flex items-center">
-                  <div
-                    className="p-1 rounded-full text-slate-400 hover:text-[#ec5b13] hover:bg-[#ec5b13]/10 transition-colors cursor-help"
-                    title={t.authRedirectDesc}
-                  >
+                  <div className="p-1 rounded-full text-slate-400 hover:text-[#ec5b13] hover:bg-[#ec5b13]/10 transition-colors cursor-help" title={t.authRedirectDesc}>
                     <HelpCircle className="w-3.5 h-3.5" />
                   </div>
-                  {/* Tooltip 气泡 */}
                   <div className="absolute left-0 bottom-full mb-1.5 hidden group-hover:flex items-center px-3 py-1.5 bg-slate-900/95 text-white text-xs font-medium rounded-xl w-64 sm:w-72 shadow-2xl backdrop-blur-md z-50 pointer-events-none transition-all leading-relaxed border border-white/10">
                     {t.authRedirectDesc}
                   </div>
@@ -237,11 +211,9 @@ export default function Settings() {
                   localSettings.authRedirect ? 'bg-[#ec5b13]' : 'bg-slate-200'
                 }`}
               >
-                <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
-                    localSettings.authRedirect ? 'translate-x-6' : 'translate-x-1'
-                  }`}
-                />
+                <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                  localSettings.authRedirect ? 'translate-x-6' : 'translate-x-1'
+                }`} />
               </button>
             </div>
           </div>
@@ -269,6 +241,78 @@ export default function Settings() {
                 <option value="en-US">English (United States)</option>
               </select>
             </div>
+
+            {/* ===== 首页布局：卡片高度 & 卡片宽度 ===== */}
+            <div className="pt-6 mt-2 border-t border-slate-100 space-y-6">
+              {/* 卡片高度 */}
+              <div className="flex flex-col gap-3">
+                <label className="text-sm font-semibold flex items-center gap-2">
+                  <LayoutGrid className="w-4 h-4 text-slate-400" />
+                  {t.cardHeightLabel}
+                </label>
+                <div className="flex items-center gap-4">
+                  <input
+                    type="range"
+                    min={60}
+                    max={200}
+                    step={5}
+                    value={localSettings.cardHeight || 80}
+                    onChange={(e) => setLocalSettings({ ...localSettings, cardHeight: Number(e.target.value) } as any)}
+                    className="flex-1 accent-[#ec5b13] cursor-pointer"
+                  />
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="number"
+                      min={60}
+                      max={200}
+                      step={5}
+                      value={localSettings.cardHeight || 80}
+                      onChange={(e) => {
+                        const v = Number(e.target.value);
+                        setLocalSettings({ ...localSettings, cardHeight: isNaN(v) ? 80 : Math.min(200, Math.max(60, v)) } as any);
+                      }}
+                      className="w-20 text-center text-base font-mono font-bold text-[#ec5b13] bg-[#ec5b13]/10 rounded-lg py-1 outline-none border border-[#ec5b13]/20 focus:border-[#ec5b13]"
+                    />
+                    <span className="text-xs text-slate-400 font-medium">px</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 卡片宽度 */}
+              <div className="flex flex-col gap-3 pt-4 border-t border-slate-100">
+                <label className="text-sm font-semibold flex items-center gap-2">
+                  <LayoutGrid className="w-4 h-4 text-slate-400" />
+                  {t.cardWidthLabel}
+                </label>
+                <div className="flex items-center gap-4">
+                  <input
+                    type="range"
+                    min={120}
+                    max={400}
+                    step={10}
+                    value={localSettings.cardWidth || 240}
+                    onChange={(e) => setLocalSettings({ ...localSettings, cardWidth: Number(e.target.value) } as any)}
+                    className="flex-1 accent-[#ec5b13] cursor-pointer"
+                  />
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="number"
+                      min={120}
+                      max={400}
+                      step={10}
+                      value={localSettings.cardWidth || 240}
+                      onChange={(e) => {
+                        const v = Number(e.target.value);
+                        setLocalSettings({ ...localSettings, cardWidth: isNaN(v) ? 240 : Math.min(400, Math.max(120, v)) } as any);
+                      }}
+                      className="w-20 text-center text-base font-mono font-bold text-[#ec5b13] bg-[#ec5b13]/10 rounded-lg py-1 outline-none border border-[#ec5b13]/20 focus:border-[#ec5b13]"
+                    />
+                    <span className="text-xs text-slate-400 font-medium">px</span>
+                  </div>
+                </div>
+                <p className="text-xs text-slate-400">{t.cardSizeDesc}</p>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -279,8 +323,6 @@ export default function Settings() {
             <h3 className="text-xl font-bold">{t.widgetSettings || '小组件'}</h3>
           </div>
           <div className="grid gap-6 bg-white p-4 sm:p-8 rounded-2xl sm:rounded-3xl border border-slate-100 shadow-sm min-w-0 overflow-hidden">
-
-            {/* 对齐方式 */}
             <div className="flex flex-col gap-3">
               <label className="text-sm font-semibold flex items-center gap-2">
                 <LayoutGrid className="w-4 h-4 text-slate-400" />
@@ -297,8 +339,6 @@ export default function Settings() {
               </select>
             </div>
 
-
-            {/* 时区 */}
             <div className="flex flex-col gap-3 pt-4 border-t border-slate-100">
               <label className="text-sm font-semibold flex items-center gap-2">
                 <Globe className="w-4 h-4 text-slate-400" />
@@ -325,7 +365,6 @@ export default function Settings() {
               <p className="text-xs text-slate-400">{t.timezoneDesc}</p>
             </div>
 
-            {/* 小组件管理 */}
             <div className="pt-4 border-t border-slate-100">
               <div className="flex items-center justify-between mb-4">
                 <label className="text-sm font-semibold flex items-center gap-2">
@@ -352,38 +391,38 @@ export default function Settings() {
                   <p className="text-sm">{t.noWidgets || '暂无小组件，点击右上角添加'}</p>
                 </div>
               ) : (
-                <div 
+                <div
                   className="border border-slate-200/80 rounded-2xl p-4 sm:p-6 bg-slate-50/30 shadow-inner"
-                  style={{ 
-                    backgroundImage: 'radial-gradient(#e2e8f0 1.5px, transparent 1.5px)', 
-                    backgroundSize: '16px 16px' 
+                  style={{
+                    backgroundImage: 'radial-gradient(#e2e8f0 1.5px, transparent 1.5px)',
+                    backgroundSize: '16px 16px'
                   }}
                 >
                   <div className="text-[10px] sm:text-xs font-bold text-slate-400 mb-4 flex items-center gap-1.5 uppercase tracking-wider select-none">
                     <Eye className="w-3.5 h-3.5 text-[#ec5b13]" />
                     布局画布预览 (Mini Canvas Preview)
                   </div>
-                  <div 
+                  <div
                     className={`w-full flex flex-wrap gap-2.5 sm:gap-3 transition-all duration-300 ${
-                      localSettings.widgetAlignment === 'left' ? 'justify-start' : 
-                      localSettings.widgetAlignment === 'right' ? 'justify-end' : 
+                      localSettings.widgetAlignment === 'left' ? 'justify-start' :
+                      localSettings.widgetAlignment === 'right' ? 'justify-end' :
                       'justify-center'
                     }`}
                   >
                     {state.widgets.map((widget, index) => {
                       const isZh = (state.settings.language || 'zh-CN') === 'zh-CN';
-                      const basisClass = 
+                      const basisClass =
                         widget.size?.startsWith('4x') ? 'basis-full sm:basis-[95%]' :
                         widget.size?.startsWith('3x') ? 'basis-[72%] sm:basis-[70%]' :
                         widget.size?.startsWith('2x') ? 'basis-[47%] sm:basis-[46%]' :
                         'basis-[22%] sm:basis-[21%]';
-                      
+
                       const heightClass = widget.size?.endsWith('x2') ? 'h-32 sm:h-36' : 'h-16 sm:h-20';
 
                       return (
                         <React.Fragment key={widget.id}>
                           {widget.wrapLine && index > 0 && <div className="w-full h-0 flex-shrink-0" />}
-                          <div 
+                          <div
                             className={`relative group border border-slate-200 rounded-xl p-3 bg-white hover:bg-slate-50 hover:border-slate-300 transition-all flex items-center justify-between gap-3 shadow-sm ${basisClass} ${heightClass} min-w-[70px] overflow-hidden`}
                           >
                             <div className="flex items-center gap-2 sm:gap-2.5 min-w-0 flex-1">
@@ -410,38 +449,30 @@ export default function Settings() {
                                 </div>
                               </div>
                             </div>
-                            
+
                             <div className="flex items-center gap-0.5 sm:gap-1 opacity-0 sm:opacity-100 group-hover:opacity-100 transition-opacity shrink-0">
                               <div className="flex items-center border border-slate-150 bg-slate-50 rounded-lg p-0.5">
-                                <button 
+                                <button
                                   disabled={index === 0}
-                                  onClick={() => handleMoveWidget(index, 'up')} 
+                                  onClick={() => handleMoveWidget(index, 'up')}
                                   className={`p-0.5 rounded transition-colors ${index === 0 ? 'text-slate-300 cursor-not-allowed' : 'text-slate-500 hover:text-slate-800 hover:bg-white'}`}
                                   title={isZh ? '前移' : 'Move Left'}
                                 >
                                   <ChevronLeft className="w-3 h-3" />
                                 </button>
-                                <button 
+                                <button
                                   disabled={index === state.widgets.length - 1}
-                                  onClick={() => handleMoveWidget(index, 'down')} 
+                                  onClick={() => handleMoveWidget(index, 'down')}
                                   className={`p-0.5 rounded transition-colors ${index === state.widgets.length - 1 ? 'text-slate-300 cursor-not-allowed' : 'text-slate-500 hover:text-slate-800 hover:bg-white'}`}
                                   title={isZh ? '后移' : 'Move Right'}
                                 >
                                   <ChevronRight className="w-3 h-3" />
                                 </button>
                               </div>
-                              <button 
-                                onClick={() => handleEditWidget(widget)} 
-                                className="p-1 text-slate-400 hover:text-[#ec5b13] hover:bg-slate-100 rounded-lg transition-colors"
-                                title={t.edit || '编辑'}
-                              >
+                              <button onClick={() => handleEditWidget(widget)} className="p-1 text-slate-400 hover:text-[#ec5b13] hover:bg-slate-100 rounded-lg transition-colors" title={t.edit || '编辑'}>
                                 <Edit2 className="w-3 h-3" />
                               </button>
-                              <button 
-                                onClick={() => deleteWidget(widget.id)} 
-                                className="p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                                title={t.delete || '删除'}
-                              >
+                              <button onClick={() => deleteWidget(widget.id)} className="p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors" title={t.delete || '删除'}>
                                 <Trash2 className="w-3 h-3" />
                               </button>
                             </div>
@@ -467,19 +498,10 @@ export default function Settings() {
           <button
             onClick={handleSave}
             className={`flex-[2] sm:flex-none px-6 sm:px-8 py-2.5 sm:py-3 rounded-xl font-bold shadow-2xl transition-all flex items-center justify-center gap-2 pointer-events-auto text-sm sm:text-base ${
-              saved
-                ? 'bg-green-500 text-white shadow-green-500/30'
-                : 'bg-[#ec5b13] text-white shadow-[#ec5b13]/30 hover:scale-[1.05] active:scale-[0.95]'
+              saved ? 'bg-green-500 text-white shadow-green-500/30' : 'bg-[#ec5b13] text-white shadow-[#ec5b13]/30 hover:scale-[1.05] active:scale-[0.95]'
             }`}
           >
-            {saved ? (
-              <>
-                <CheckCircle className="w-4 h-4" />
-                {t.saved}
-              </>
-            ) : (
-              t.saveSettings
-            )}
+            {saved ? (<><CheckCircle className="w-4 h-4" />{t.saved}</>) : t.saveSettings}
           </button>
         </footer>
       </div>
@@ -509,10 +531,7 @@ export default function Settings() {
               </div>
               <div>
                 <label className="text-sm font-semibold text-slate-700">{t.itemSizeLabel || '显示尺寸'}</label>
-                <div
-                  className="grid gap-2 mt-1.5"
-                  style={{ gridTemplateColumns: `repeat(${widgetForm.widgetType === 'search' ? 6 : 4}, minmax(0, 1fr))` }}
-                >
+                <div className="grid gap-2 mt-1.5" style={{ gridTemplateColumns: `repeat(${widgetForm.widgetType === 'search' ? 6 : 4}, minmax(0, 1fr))` }}>
                   {(widgetForm.widgetType === 'search'
                     ? ['1x1', '2x1', '3x1', '4x1', '1x2', '2x2']
                     : ['1x1', '2x1', '1x2', '2x2']
@@ -521,9 +540,7 @@ export default function Settings() {
                       key={s}
                       onClick={() => setWidgetForm({ ...widgetForm, size: s })}
                       className={`p-2 rounded-lg border-2 transition-all text-xs font-bold font-mono tracking-wider ${
-                        (widgetForm.size || '1x1') === s
-                          ? 'border-[#ec5b13] bg-[#ec5b13]/5 text-[#ec5b13]'
-                          : 'border-slate-100 bg-slate-50 text-slate-400 hover:border-slate-200'
+                        (widgetForm.size || '1x1') === s ? 'border-[#ec5b13] bg-[#ec5b13]/5 text-[#ec5b13]' : 'border-slate-100 bg-slate-50 text-slate-400 hover:border-slate-200'
                       }`}
                     >
                       {s}
@@ -539,13 +556,9 @@ export default function Settings() {
                 <button
                   type="button"
                   onClick={() => setWidgetForm({ ...widgetForm, showBackground: !widgetForm.showBackground })}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors flex-shrink-0 ${
-                    widgetForm.showBackground ? 'bg-[#ec5b13]' : 'bg-slate-200'
-                  }`}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors flex-shrink-0 ${widgetForm.showBackground ? 'bg-[#ec5b13]' : 'bg-slate-200'}`}
                 >
-                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
-                    widgetForm.showBackground ? 'translate-x-6' : 'translate-x-1'
-                  }`} />
+                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${widgetForm.showBackground ? 'translate-x-6' : 'translate-x-1'}`} />
                 </button>
               </div>
               <div className="flex items-center justify-between pt-2 border-t border-slate-100">
@@ -556,13 +569,9 @@ export default function Settings() {
                 <button
                   type="button"
                   onClick={() => setWidgetForm({ ...widgetForm, wrapLine: !widgetForm.wrapLine })}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors flex-shrink-0 ${
-                    widgetForm.wrapLine ? 'bg-[#ec5b13]' : 'bg-slate-200'
-                  }`}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors flex-shrink-0 ${widgetForm.wrapLine ? 'bg-[#ec5b13]' : 'bg-slate-200'}`}
                 >
-                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
-                    widgetForm.wrapLine ? 'translate-x-6' : 'translate-x-1'
-                  }`} />
+                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${widgetForm.wrapLine ? 'translate-x-6' : 'translate-x-1'}`} />
                 </button>
               </div>
             </div>
