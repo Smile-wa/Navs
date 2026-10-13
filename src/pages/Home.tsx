@@ -1,6 +1,7 @@
 /**
  * YuNest 前台首页
  * NOTE: 左侧分类侧边栏 + 右侧卡片流，卡片尺寸由后台控制
+ *       已适配桌面端 / 平板 / 手机三档，移动端每行 2 个卡片
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -56,11 +57,27 @@ function useClock(timezoneID?: string, language: 'zh-CN' | 'en-US' = 'zh-CN') {
   };
 }
 
+/** 判断是否为移动端屏幕 */
+function useIsMobile(breakpoint: number = 768) {
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth < breakpoint : false
+  );
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < breakpoint);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [breakpoint]);
+
+  return isMobile;
+}
+
 export default function Home() {
   const { state, isReady } = useData();
   const { settings, categories, widgets = [] } = state;
   const t = TRANSLATIONS[settings.language || 'zh-CN'];
   const navigate = useNavigate();
+  const isMobile = useIsMobile(768);
 
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [password, setPassword] = useState('');
@@ -75,18 +92,29 @@ export default function Home() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
-  // ====== 前台卡片配置（长宽独立） ======
-  const cardHeight = settings.cardHeight || 80;
-  const cardWidth = settings.cardWidth || 240;
+  // ====== 前台卡片配置（长宽独立，移动端自动适配） ======
+  const baseCardHeight = settings.cardHeight || 80;
+  const baseCardWidth = settings.cardWidth || 240;
+
+  // 移动端：高度稍微压缩；桌面端：使用后台设定值
+  const cardHeight = isMobile ? Math.max(64, Math.round(baseCardHeight * 0.9)) : baseCardHeight;
+
+  // 移动端每行 2 个：宽度 = 50% - 间距的一半（gap-3 = 12px，减 6px）
+  // 桌面端：使用后台设定值
+  const cardWidth = isMobile ? 'calc(50% - 6px)' : `${baseCardWidth}px`;
 
   // 图标盒尺寸
   const iconBoxSize = Math.max(28, Math.round(cardHeight * 0.56));
 
-  // 标题字号（像素值，随卡片高度线性变化）
-  const titleFontPx = Math.max(13, Math.round(cardHeight * 0.19));
+  // 标题字号（移动端下限稍小一点，避免溢出）
+  const titleFontPx = isMobile
+    ? Math.max(12, Math.round(cardHeight * 0.17))
+    : Math.max(14, Math.round(cardHeight * 0.19));
 
-  // 描述字号（像素值，随卡片高度线性变化）
-  const descFontPx = Math.max(11, Math.round(cardHeight * 0.14));
+  // 描述字号
+  const descFontPx = isMobile
+    ? Math.max(10, Math.round(cardHeight * 0.13))
+    : Math.max(11, Math.round(cardHeight * 0.14));
 
   const sidebarCategories = useMemo(() => {
     return categories
@@ -206,11 +234,11 @@ export default function Home() {
     return <Icons.Globe className={`${size} text-white/70`} />;
   };
 
-  const renderSidebarContent = (isMobile: boolean = false) => {
-    const collapsed = isMobile ? false : isCollapsed;
+  const renderSidebarContent = (isMobileMode: boolean = false) => {
+    const collapsed = isMobileMode ? false : isCollapsed;
 
     return (
-      <div className={`flex flex-col w-full h-full ${isMobile ? 'gap-1.5 px-3 py-4 rounded-3xl glass shadow-2xl' : ''}`}>
+      <div className={`flex flex-col w-full h-full ${isMobileMode ? 'gap-1.5 px-3 py-4 rounded-3xl glass shadow-2xl' : ''}`}>
         <div className="flex-1 flex flex-col justify-center items-center w-full overflow-hidden px-3 py-4">
           <div className="flex flex-col items-center gap-1.5 w-full overflow-y-auto sidebar-scroll" style={{ maxHeight: '100%' }}>
             <div
@@ -288,7 +316,7 @@ export default function Home() {
           </a>
         </div>
 
-        {!isMobile && (
+        {!isMobileMode && (
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
             title={isCollapsed ? '展开侧边栏' : '折叠侧边栏'}
@@ -345,7 +373,7 @@ export default function Home() {
       </div>
 
       {/* 移动端汉堡按钮 */}
-      <div className={`fixed top-6 left-4 z-50 md:hidden transition-all duration-500 ${
+      <div className={`fixed top-4 left-4 z-50 md:hidden transition-all duration-500 ${
         isScrolled ? 'opacity-0 -translate-y-2 pointer-events-none' : 'opacity-100 translate-y-0'
       }`}>
         <button
@@ -370,7 +398,7 @@ export default function Home() {
         onClick={() => setIsMobileSidebarOpen(false)}
       />
       <aside
-        className={`fixed left-0 top-1/2 -translate-y-1/2 z-[70] w-[280px] px-3 md:hidden transition-transform duration-300 ease-out ${
+        className={`fixed left-0 top-1/2 -translate-y-1/2 z-[70] w-[280px] max-w-[85vw] px-3 md:hidden transition-transform duration-300 ease-out ${
           isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
         style={{ maxHeight: '90vh', overflowY: 'auto' }}
@@ -390,28 +418,30 @@ export default function Home() {
       {/* 右侧主内容区 */}
       <div
         className={`relative z-10 flex min-h-screen transition-all duration-300 ${
-          isCollapsed ? 'md:pl-[72px]' : 'md:pl-[230px]'
+          !isMobile && (isCollapsed ? 'md:pl-[72px]' : 'md:pl-[230px]')
         } w-full`}
         style={{ minWidth: 0 }}
       >
         <main
-          className={`flex-1 flex flex-col items-center justify-start min-h-screen px-4 sm:px-6 w-full ${
-            widgets && widgets.length > 0 ? 'pt-6 sm:pt-10' : 'pt-16 sm:pt-24'
+          className={`flex-1 flex flex-col items-center justify-start min-h-screen w-full ${
+            isMobile ? 'px-3 pt-20' : 'px-4 sm:px-6 pt-16 sm:pt-24'
           }`}
           style={{ minWidth: 0 }}
         >
-          {/* 移动端标题 */}
-          <header className="text-center mb-8 animate-fade-in sm:hidden" style={{ animationDelay: '0.1s' }}>
-            <a
-              href="https://myblog.xwgt.xyz"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1 text-xs font-bold tracking-[0.4em] text-white/40 hover:text-white/80 uppercase no-underline transition-colors"
-              title="访问我的博客"
-            >
-              {settings.siteName}
-            </a>
-          </header>
+          {/* 移动端顶部标题 */}
+          {isMobile && (
+            <header className="text-center mb-6 animate-fade-in" style={{ animationDelay: '0.1s' }}>
+              <a
+                href="https://myblog.xwgt.xyz"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 text-xs font-bold tracking-[0.4em] text-white/40 hover:text-white/80 uppercase no-underline transition-colors"
+                title="访问我的博客"
+              >
+                {settings.siteName}
+              </a>
+            </header>
+          )}
 
           {/* 小组件区域 */}
           {widgets && widgets.length > 0 && (
@@ -453,7 +483,7 @@ export default function Home() {
           )}
 
           {/* 书签分组 */}
-          <div className="w-full flex flex-col gap-14 pb-24 px-1">
+          <div className={`w-full flex flex-col pb-24 px-0 sm:px-1 ${isMobile ? 'gap-10' : 'gap-14'}`}>
             {visibleCategories.length === 0 ? (
               <div className="text-center text-white/40 text-base py-20 animate-fade-in">
                 该分类下暂无内容
@@ -465,14 +495,16 @@ export default function Home() {
                   className="animate-fade-in-scale"
                   style={{ animationDelay: `${0.4 + catIndex * 0.1}s` }}
                 >
-                  <h2 className="text-base sm:text-lg font-bold uppercase tracking-[0.2em] text-white/60 px-3 mb-6 flex items-center gap-3">
+                  <h2 className={`font-bold uppercase tracking-[0.2em] text-white/60 flex items-center gap-3 ${
+                    isMobile ? 'text-sm px-1 mb-4' : 'text-base sm:text-lg px-3 mb-6'
+                  }`}>
                     {renderIcon(category.icon, undefined, 'w-5 h-5')}
                     {category.title}
                     <span className="text-white/25 font-medium text-sm">({category.bookmarks.length})</span>
                   </h2>
 
-                  {/* 卡片列表：固定宽高 + 自动换行 */}
-                  <div className="flex flex-wrap gap-4 sm:gap-5 px-1 w-full min-w-0">
+                  {/* 卡片列表：移动端每行 2 个，桌面端固定宽度 */}
+                  <div className={`flex flex-wrap w-full min-w-0 ${isMobile ? 'gap-3' : 'gap-4 sm:gap-5 px-1'}`}>
                     {category.bookmarks.map((bookmark) => (
                       <a
                         key={bookmark.id}
@@ -480,17 +512,23 @@ export default function Home() {
                         target="_blank"
                         rel="noopener noreferrer"
                         onContextMenu={(e) => handleContextMenu(e, bookmark)}
-                        className="flex items-center p-3 sm:p-4 rounded-2xl glass hover:bg-white/10 hover:-translate-y-0.5 hover:border-white/15 transition-all duration-300 group min-w-0"
+                        className={`flex items-center rounded-2xl glass hover:bg-white/10 hover:-translate-y-0.5 hover:border-white/15 transition-all duration-300 group min-w-0 ${
+                          isMobile ? 'p-3' : 'p-3 sm:p-4'
+                        }`}
                         style={{
-                          width: `${cardWidth}px`,
+                          width: typeof cardWidth === 'number' ? `${cardWidth}px` : cardWidth,
                           height: `${cardHeight}px`,
                           maxWidth: '100%',
                         }}
                       >
                         {/* 图标盒 */}
                         <div
-                          className="rounded-xl bg-white/5 flex items-center justify-center mr-3 group-hover:bg-white/10 transition-colors duration-300 shrink-0"
-                          style={{ width: `${iconBoxSize}px`, height: `${iconBoxSize}px` }}
+                          className="rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors duration-300 shrink-0"
+                          style={{
+                            width: `${iconBoxSize}px`,
+                            height: `${iconBoxSize}px`,
+                            marginRight: isMobile ? '10px' : '12px',
+                          }}
                         >
                           {renderIcon(
                             bookmark.icon,
@@ -499,14 +537,14 @@ export default function Home() {
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          {/* 标题：字号由像素值控制 */}
+                          {/* 标题 */}
                           <p
                             className="font-bold text-white group-hover:text-white transition-colors duration-300 truncate"
                             style={{ fontSize: `${titleFontPx}px` }}
                           >
                             {bookmark.title}
                           </p>
-                          {/* 描述：颜色更亮、去掉全大写、间距加大 */}
+                          {/* 描述 */}
                           {bookmark.description && cardHeight >= 70 && (
                             <p
                               className="text-white/65 tracking-wide mt-1 truncate"
@@ -516,7 +554,10 @@ export default function Home() {
                             </p>
                           )}
                         </div>
-                        <ExternalLink className="w-4 h-4 text-white/0 group-hover:text-white/30 transition-all duration-300 shrink-0 ml-2 hidden sm:block" />
+                        {/* 外链图标（移动端不显示，节省空间） */}
+                        {!isMobile && (
+                          <ExternalLink className="w-4 h-4 text-white/0 group-hover:text-white/30 transition-all duration-300 shrink-0 ml-2" />
+                        )}
                       </a>
                     ))}
                   </div>
@@ -526,11 +567,15 @@ export default function Home() {
           </div>
 
           {/* 页脚 */}
-          <footer className="mt-auto pt-8 pb-10 text-center animate-fade-in flex flex-col items-center gap-3.5" style={{ animationDelay: '1.2s' }}>
-            <div className="inline-flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-white/60 font-medium drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
+          <footer className={`mt-auto pt-8 pb-10 text-center animate-fade-in flex flex-col items-center gap-3.5 ${
+            isMobile ? 'pb-6' : ''
+          }`} style={{ animationDelay: '1.2s' }}>
+            <div className={`inline-flex items-center gap-2 font-medium drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] ${
+              isMobile ? 'flex-col gap-2 text-[11px]' : 'text-xs sm:text-sm'
+            }`}>
               <span className="tracking-wider uppercase select-none text-white/50">{t.builtBy}</span>
-              <span className="text-white/30 select-none">•</span>
-              <div className="flex items-center gap-3">
+              <span className={`text-white/30 select-none ${isMobile ? 'hidden' : ''}`}>•</span>
+              <div className={`flex items-center ${isMobile ? 'gap-4' : 'gap-3'}`}>
                 <a
                   href="https://myblog.xwgt.xyz"
                   target="_blank"
