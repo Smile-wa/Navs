@@ -1,33 +1,25 @@
 /**
  * YuNest 前台首页
- * NOTE: 核心导航展示界面，包含壁纸背景、实时时钟、搜索和书签卡片
+ * NOTE: 左侧分类侧边栏 + 右侧卡片流，卡片尺寸由后台控制
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useData, PRESET_SEARCH_ENGINES } from '../context/DataContext.tsx';
-import { 
-  Search, 
-  Settings as SettingsIcon, 
-  ExternalLink, 
-  Lock, 
-  CheckCircle2, 
-  AlertCircle, 
-  X, 
-  Globe, 
-  BookOpen, 
+import {
+  Search,
+  Settings as SettingsIcon,
+  ExternalLink,
+  Lock,
+  X,
+  Globe,
+  BookOpen,
   Github,
-  Bot,
-  Cloud,
-  Code2,
-  Mail,
-  Users,
-  Palette,
   ChevronLeft,
   ChevronRight,
   LayoutGrid,
   Menu
 } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import * as Icons from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations.ts';
 import { WidgetRenderer } from '../components/widgets/WidgetRenderer.tsx';
@@ -38,7 +30,6 @@ import { FaviconImg } from '../components/FaviconImg.tsx';
 /** 实时时钟 Hook */
 function useClock(timezoneID?: string, language: 'zh-CN' | 'en-US' = 'zh-CN') {
   const [now, setNow] = useState(new Date());
-
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(timer);
@@ -53,24 +44,15 @@ function useClock(timezoneID?: string, language: 'zh-CN' | 'en-US' = 'zh-CN') {
   };
 
   const timeOptions: Intl.DateTimeFormatOptions = {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false,
-    timeZone: timezoneID || undefined
+    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: timezoneID || undefined
   };
-
   const dateOptions: Intl.DateTimeFormatOptions = {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    weekday: 'long',
-    timeZone: timezoneID || undefined
+    year: 'numeric', month: 'long', day: 'numeric', weekday: 'long', timeZone: timezoneID || undefined
   };
 
-  return { 
-    time: '', 
-    date: '' 
+  return {
+    time: formatWithFallback(timeOptions),
+    date: formatWithFallback(dateOptions)
   };
 }
 
@@ -79,39 +61,35 @@ export default function Home() {
   const { settings, categories, widgets = [] } = state;
   const t = TRANSLATIONS[settings.language || 'zh-CN'];
   const navigate = useNavigate();
-  
-  // 认证相关
+
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [authError, setAuthError] = useState(false);
-
   const [isScrolled, setIsScrolled] = useState(false);
   const [isAdmin, setIsAdmin] = useState(() => sessionStorage.getItem('yunest_auth') === 'true');
-  
-  // 背景加载相关
   const [isBgLoaded, setIsBgLoaded] = useState(false);
-  
-  // 右键菜单相关
   const [contextMenu, setContextMenu] = useState<{ x: number, y: number, bookmark: any } | null>(null);
 
-  // ====== 侧边栏状态 ======
   const [activeSidebarId, setActiveSidebarId] = useState<string>('all');
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
-  // ====== 侧边栏数据（完全由后台 categories 自动生成） ======
+  // ====== 前台卡片配置（长宽独立） ======
+  const cardHeight = settings.cardHeight || 80;
+  const cardWidth = settings.cardWidth || 240;
+  const iconBoxSize = Math.max(28, Math.round(cardHeight * 0.55));
+  const titleFontSize = cardHeight < 70 ? 'text-xs' : cardHeight < 110 ? 'text-sm' : 'text-base';
+  const descFontSize = cardHeight < 70 ? 'text-[10px]' : 'text-[11px]';
+
   const sidebarCategories = useMemo(() => {
     return categories
       .filter(c => c.bookmarks.length > 0)
       .filter(c => !c.isHidden || isAdmin);
   }, [categories, isAdmin]);
 
-  // ====== 右侧内容区根据侧边栏选中状态过滤 ======
   const visibleCategories = useMemo(() => {
-    if (activeSidebarId === 'all') {
-      return sidebarCategories;
-    }
+    if (activeSidebarId === 'all') return sidebarCategories;
     return sidebarCategories.filter(c => c.id === activeSidebarId);
   }, [sidebarCategories, activeSidebarId]);
 
@@ -137,14 +115,9 @@ export default function Home() {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       const safeScrollY = Math.max(0, currentScrollY);
-
-      if (safeScrollY <= 20) {
-        setIsScrolled(false);
-      } else if (safeScrollY > lastScrollY) {
-        setIsScrolled(true);
-      } else if (safeScrollY < lastScrollY) {
-        setIsScrolled(false);
-      }
+      if (safeScrollY <= 20) setIsScrolled(false);
+      else if (safeScrollY > lastScrollY) setIsScrolled(true);
+      else if (safeScrollY < lastScrollY) setIsScrolled(false);
       lastScrollY = safeScrollY;
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -155,21 +128,17 @@ export default function Home() {
     const root = document.documentElement;
     const blurValue = (settings.glassEffectOpacity / 100) * 40;
     const opacityValue = 0.1 + (settings.glassEffectOpacity / 100) * 0.7;
-    
     root.style.setProperty('--glass-blur', `${blurValue}px`);
     root.style.setProperty('--glass-opacity', `${opacityValue}`);
   }, [settings.glassEffectOpacity]);
 
-  // 选中分类后自动关闭移动端抽屉
   const handleSelectCategory = (id: string) => {
     setActiveSidebarId(id);
     setIsMobileSidebarOpen(false);
   };
 
   const bgUrl = useMemo(() => {
-    if (settings.wallpaperType === 'local' && settings.localWallpaper) {
-      return settings.localWallpaper;
-    }
+    if (settings.wallpaperType === 'local' && settings.localWallpaper) return settings.localWallpaper;
     const url = settings.wallpaperUrl || 'https://pic.yumekai.top/pic?img=ua';
     if (settings.wallpaperType === 'api') {
       const separator = url.includes('?') ? '&' : '?';
@@ -181,16 +150,13 @@ export default function Home() {
   const handleAdminAuth = (e?: React.FormEvent) => {
     e?.preventDefault();
     const adminPass = (import.meta as any).env.ADMIN_PASSWORD || 'admin1234';
-    
     if (password === adminPass) {
       sessionStorage.setItem('yunest_auth', 'true');
       sessionStorage.setItem('yunest_admin_pwd', password);
       setShowAuthModal(false);
       setIsAdmin(true);
       setPassword('');
-      if (settings.authRedirect) {
-        navigate('/admin/settings');
-      }
+      if (settings.authRedirect) navigate('/admin/settings');
     } else {
       setAuthError(true);
       setTimeout(() => setAuthError(false), 2000);
@@ -198,11 +164,8 @@ export default function Home() {
   };
 
   const openAuth = () => {
-    if (sessionStorage.getItem('yunest_auth') === 'true') {
-      navigate('/admin/settings');
-    } else {
-      setShowAuthModal(true);
-    }
+    if (sessionStorage.getItem('yunest_auth') === 'true') navigate('/admin/settings');
+    else setShowAuthModal(true);
   };
 
   if (!isReady) {
@@ -221,120 +184,109 @@ export default function Home() {
   }
 
   const renderIcon = (iconName: string, siteUrl?: string, size: string = 'w-5 h-5') => {
-    if (iconName && (
-      iconName.startsWith('http://') || iconName.startsWith('https://') ||
-      iconName.startsWith('/') || iconName.startsWith('data:')
-    )) {
+    if (iconName && (iconName.startsWith('http://') || iconName.startsWith('https://') || iconName.startsWith('/') || iconName.startsWith('data:'))) {
       const src = normalizeIconUrl(iconName);
       const isProxyUrl = src.startsWith('/api/icon-proxy');
-      if (isProxyUrl) {
-        return <FaviconImg src={src} className={`${size} object-contain rounded-sm`} fallbackClassName={`${size} text-white/50`} />;
-      }
+      if (isProxyUrl) return <FaviconImg src={src} className={`${size} object-contain rounded-sm`} fallbackClassName={`${size} text-white/50`} />;
       const fallbackProxySrc = siteUrl ? getFaviconProxyUrl(siteUrl) : '';
       return <FaviconImg src={src} fallbackSrc={fallbackProxySrc || undefined} className={`${size} object-contain rounded-sm`} fallbackClassName={`${size} text-white/50`} />;
     }
-
     const IconComponent = (Icons as Record<string, React.ComponentType<{ className?: string }>>)[iconName];
-    if (IconComponent) {
-      return <IconComponent className={`${size} text-white/70`} />;
-    }
-
+    if (IconComponent) return <IconComponent className={`${size} text-white/70`} />;
     if (siteUrl) {
       const proxyUrl = getFaviconProxyUrl(siteUrl);
-      if (proxyUrl) {
-        return <FaviconImg src={proxyUrl} className={`${size} object-contain rounded-sm`} fallbackClassName={`${size} text-white/50`} />;
-      }
+      if (proxyUrl) return <FaviconImg src={proxyUrl} className={`${size} object-contain rounded-sm`} fallbackClassName={`${size} text-white/50`} />;
     }
-
     return <Icons.Globe className={`${size} text-white/70`} />;
   };
 
-  // ====== 侧边栏内容（复用于桌面端和移动端抽屉，自动撑高显示所有分类） ======
   const renderSidebarContent = (isMobile: boolean = false) => {
     const collapsed = isMobile ? false : isCollapsed;
-    
+
     return (
-      <div
-        className="flex flex-col items-center gap-1.5 w-full px-3 py-4 rounded-3xl glass shadow-2xl"
-        style={{ maxHeight: '85vh' }}
-      >
-        {/* 菜单列表 —— 分类过多时出现内部滚动，防止被切掉 */}
-        <div
-          className="flex flex-col items-center gap-1.5 w-full overflow-y-auto sidebar-scroll"
-          style={{ maxHeight: '70vh' }}
-        >
-          
-          {/* “全部” 入口 */}
-          <div
-            onClick={() => handleSelectCategory('all')}
-            title={collapsed ? '全部' : undefined}
-            className={`flex items-center justify-center w-full px-3 py-3 rounded-2xl cursor-pointer transition-all duration-300 group flex-shrink-0 ${
-              activeSidebarId === 'all'
-                ? 'bg-white/15 text-white shadow-lg border border-white/10'
-                : 'text-white/50 hover:text-white hover:bg-white/5 border border-transparent'
-            }`}
-          >
-            <LayoutGrid className={`w-5 h-5 flex-shrink-0 transition-transform duration-300 ${
-              activeSidebarId === 'all' ? 'text-white scale-110' : 'text-white/40 group-hover:text-white/70'
-            }`} />
-            {!collapsed && (
-              <>
-                <span className="ml-3 flex-1 text-[14px] font-medium tracking-wide text-left truncate">
-                  全部
-                </span>
-                <span className={`text-[12px] font-mono ml-1 ${
-                  activeSidebarId === 'all' ? 'text-white/60' : 'text-white/25'
-                }`}>
-                  {sidebarCategories.reduce((sum, c) => sum + c.bookmarks.length, 0)}
-                </span>
-              </>
-            )}
-          </div>
+      <div className={`flex flex-col w-full h-full ${isMobile ? 'gap-1.5 px-3 py-4 rounded-3xl glass shadow-2xl' : ''}`}>
+        <div className="flex-1 flex flex-col justify-center items-center w-full overflow-hidden px-3 py-4">
+          <div className="flex flex-col items-center gap-1.5 w-full overflow-y-auto sidebar-scroll" style={{ maxHeight: '100%' }}>
+            <div
+              onClick={() => handleSelectCategory('all')}
+              title={collapsed ? '全部' : undefined}
+              className={`flex items-center justify-center w-full px-3 py-3 rounded-2xl cursor-pointer transition-all duration-300 group flex-shrink-0 ${
+                activeSidebarId === 'all'
+                  ? 'bg-white/15 text-white shadow-lg border border-white/10'
+                  : 'text-white/50 hover:text-white hover:bg-white/5 border border-transparent'
+              }`}
+            >
+              <LayoutGrid className={`w-5 h-5 flex-shrink-0 transition-transform duration-300 ${
+                activeSidebarId === 'all' ? 'text-white scale-110' : 'text-white/40 group-hover:text-white/70'
+              }`} />
+              {!collapsed && (
+                <>
+                  <span className="ml-3 flex-1 text-[14px] font-medium tracking-wide text-left truncate">全部</span>
+                  <span className={`text-[12px] font-mono ml-1 ${activeSidebarId === 'all' ? 'text-white/60' : 'text-white/25'}`}>
+                    {sidebarCategories.reduce((sum, c) => sum + c.bookmarks.length, 0)}
+                  </span>
+                </>
+              )}
+            </div>
 
-          {/* 分隔线 */}
-          <div className="w-full h-px bg-white/5 my-1 flex-shrink-0" />
+            <div className="w-full h-px bg-white/5 my-1 flex-shrink-0" />
 
-          {/* 动态分类（自动同步后台） */}
-          {sidebarCategories.map((category) => {
-            const isActive = activeSidebarId === category.id;
-            return (
-              <div
-                key={category.id}
-                onClick={() => handleSelectCategory(category.id)}
-                title={collapsed ? category.title : undefined}
-                className={`flex items-center justify-center w-full px-3 py-3 rounded-2xl cursor-pointer transition-all duration-300 group flex-shrink-0 ${
-                  isActive
-                    ? 'bg-white/15 text-white shadow-lg border border-white/10'
-                    : 'text-white/50 hover:text-white hover:bg-white/5 border border-transparent'
-                }`}
-              >
-                <div className="w-5 h-5 flex-shrink-0 flex items-center justify-center">
-                  {renderIcon(category.icon, undefined, 'w-5 h-5')}
+            {sidebarCategories.map((category) => {
+              const isActive = activeSidebarId === category.id;
+              return (
+                <div
+                  key={category.id}
+                  onClick={() => handleSelectCategory(category.id)}
+                  title={collapsed ? category.title : undefined}
+                  className={`flex items-center justify-center w-full px-3 py-3 rounded-2xl cursor-pointer transition-all duration-300 group flex-shrink-0 ${
+                    isActive
+                      ? 'bg-white/15 text-white shadow-lg border border-white/10'
+                      : 'text-white/50 hover:text-white hover:bg-white/5 border border-transparent'
+                  }`}
+                >
+                  <div className="w-5 h-5 flex-shrink-0 flex items-center justify-center">
+                    {renderIcon(category.icon, undefined, 'w-5 h-5')}
+                  </div>
+                  {!collapsed && (
+                    <>
+                      <span className="ml-3 flex-1 text-[14px] font-medium tracking-wide text-left truncate">{category.title}</span>
+                      <span className={`text-[12px] font-mono ml-1 ${isActive ? 'text-white/60' : 'text-white/25'}`}>
+                        {category.bookmarks.length}
+                      </span>
+                    </>
+                  )}
                 </div>
-
-                {!collapsed && (
-                  <>
-                    <span className="ml-3 flex-1 text-[14px] font-medium tracking-wide text-left truncate">
-                      {category.title}
-                    </span>
-                    <span className={`text-[12px] font-mono ml-1 ${
-                      isActive ? 'text-white/60' : 'text-white/25'
-                    }`}>
-                      {category.bookmarks.length}
-                    </span>
-                  </>
-                )}
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
 
-        {/* 折叠/展开按钮（移动端不显示） */}
+        <div className={`w-full flex items-center ${collapsed ? 'flex-col' : 'flex-row'} gap-2 px-3 pb-3 border-t border-white/5 flex-shrink-0`}>
+          <button
+            onClick={openAuth}
+            title={t.settingsIcon}
+            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-white/50 hover:text-white hover:bg-white/5 transition-all duration-300 cursor-pointer border-0 bg-transparent"
+          >
+            <SettingsIcon className="w-4 h-4" />
+            {!collapsed && <span className="text-[13px] font-medium">设置</span>}
+          </button>
+          <a
+            href="https://navdocs.072199.xyz/"
+            target="_blank"
+            rel="noreferrer"
+            title={t.docsTooltip}
+            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-white/50 hover:text-white hover:bg-white/5 transition-all duration-300 no-underline"
+          >
+            <BookOpen className="w-4 h-4" />
+            {!collapsed && <span className="text-[13px] font-medium">文档</span>}
+          </a>
+        </div>
+
         {!isMobile && (
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
             title={isCollapsed ? '展开侧边栏' : '折叠侧边栏'}
-            className="mt-3 flex items-center justify-center w-full py-2.5 rounded-2xl text-white/40 hover:text-white hover:bg-white/5 transition-all duration-300 cursor-pointer border-0 bg-transparent flex-shrink-0"
+            className="flex items-center justify-center w-full py-2.5 px-3 mb-3 rounded-2xl text-white/40 hover:text-white hover:bg-white/5 transition-all duration-300 cursor-pointer border-0 bg-transparent flex-shrink-0"
           >
             {isCollapsed ? (
               <ChevronRight className="w-4 h-4" />
@@ -355,68 +307,38 @@ export default function Home() {
   return (
     <div className="text-white min-h-screen font-sans selection:bg-white/20 relative">
       {/* 背景壁纸层 */}
-      <div className="fixed inset-0 z-0 overflow-hidden bg-[#0a0a0a]" 
+      <div className="fixed inset-0 z-0 overflow-hidden bg-[#0a0a0a]"
         style={settings.wallpaperType === 'color' ? { backgroundColor: settings.backgroundColor } : {}}>
-        
         {settings.wallpaperType !== 'color' && !isBgLoaded && (
           <div className="absolute inset-0 bg-gradient-to-br from-[#1a1c2c] via-[#4a192c] to-[#121212] animate-pulse opacity-40" />
         )}
-
         {settings.wallpaperType !== 'color' && (
           <img
             src={bgUrl}
             alt="Background"
             onLoad={() => setIsBgLoaded(true)}
-            className={`w-full h-full object-cover animate-bg-drift transition-opacity duration-1000 ${
-              isBgLoaded ? 'opacity-100' : 'opacity-0'
-            }`}
+            className={`w-full h-full object-cover animate-bg-drift transition-opacity duration-1000 ${isBgLoaded ? 'opacity-100' : 'opacity-0'}`}
             onError={(e) => {
               const target = e.target as HTMLImageElement;
-              if (target.src !== 'https://pic.yumekai.top/pic?img=ua') {
-                target.src = 'https://pic.yumekai.top/pic?img=ua';
-              }
+              if (target.src !== 'https://pic.yumekai.top/pic?img=ua') target.src = 'https://pic.yumekai.top/pic?img=ua';
             }}
           />
         )}
         {settings.darkMask && (
-          <div 
-            className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/90 pointer-events-none transition-opacity duration-500" 
-            style={{ opacity: settings.darkMaskOpacity / 100 }}
-          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/90 pointer-events-none transition-opacity duration-500"
+            style={{ opacity: settings.darkMaskOpacity / 100 }} />
         )}
         {settings.glassEffect && (
-          <div 
-            className="absolute inset-0 pointer-events-none transition-all duration-500" 
-            style={{ 
+          <div className="absolute inset-0 pointer-events-none transition-all duration-500"
+            style={{
               backdropFilter: `blur(${(settings.glassEffectOpacity / 100) * 12}px)`,
               WebkitBackdropFilter: `blur(${(settings.glassEffectOpacity / 100) * 12}px)`,
-              backgroundColor: `rgba(0, 0, 0, ${ (settings.glassEffectOpacity / 100) * 0.08 })`
-            }}
-          />
+              backgroundColor: `rgba(0, 0, 0, ${(settings.glassEffectOpacity / 100) * 0.08})`
+            }} />
         )}
       </div>
 
-      {/* 左上角网站标题（桌面端） */}
-      <div 
-        className={`fixed top-6 left-8 z-50 transition-all duration-500 ease-in-out hidden sm:block ${
-          isScrolled ? 'opacity-0 -translate-y-2 pointer-events-none' : 'opacity-100 translate-y-0'
-        }`}
-      >
-        <a
-          href="https://myblog.xwgt.xyz/"
-          target="_blank"
-          rel="noreferrer"
-          className="group flex items-center gap-2 no-underline cursor-pointer"
-          title="访问我的博客"
-        >
-          <h1 className="text-lg font-medium tracking-[0.15em] text-white/60 group-hover:text-white transition-colors duration-300 uppercase flex items-center gap-1.5">
-            {settings.siteName}
-            <ExternalLink className="w-3.5 h-3.5 opacity-0 group-hover:opacity-60 transition-all duration-300 -translate-x-1 group-hover:translate-x-0" />
-          </h1>
-        </a>
-      </div>
-
-      {/* 移动端汉堡按钮（左上角） */}
+      {/* 移动端汉堡按钮 */}
       <div className={`fixed top-6 left-4 z-50 md:hidden transition-all duration-500 ${
         isScrolled ? 'opacity-0 -translate-y-2 pointer-events-none' : 'opacity-100 translate-y-0'
       }`}>
@@ -429,38 +351,18 @@ export default function Home() {
         </button>
       </div>
 
-      {/* 右上角设置按钮 */}
-      <div 
-        className={`fixed top-6 right-6 z-50 transition-all duration-500 ease-in-out ${
-          isScrolled ? 'opacity-0 -translate-y-2 pointer-events-none' : 'opacity-100 translate-y-0'
-        }`}
-      >
-        <button
-          onClick={openAuth}
-          className="p-3 rounded-2xl glass text-white/40 hover:text-white/90 transition-all duration-300 hover:bg-white/10 group flex items-center justify-center border-0 cursor-pointer"
-          title={t.settingsIcon}
-        >
-          <SettingsIcon className="w-5 h-5 transition-transform duration-500 group-hover:rotate-90" />
-        </button>
-      </div>
-
-      {/* ====== 桌面端侧边栏（固定定位，上下居中，自动同步后台分类，完整显示所有分类） ====== */}
-      <aside
-        className={`hidden md:flex fixed left-0 top-1/2 -translate-y-1/2 z-30 flex-col items-center transition-all duration-300 ease-in-out ${sidebarWidth}`}
-      >
+      {/* 桌面端侧边栏 */}
+      <aside className={`hidden md:flex fixed left-0 top-0 bottom-0 z-30 flex-col transition-all duration-300 ease-in-out ${sidebarWidth}`}>
         {renderSidebarContent(false)}
       </aside>
 
-      {/* ====== 移动端抽屉式侧边栏 ====== */}
-      {/* 遮罩层 */}
+      {/* 移动端抽屉 */}
       <div
         className={`fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm md:hidden transition-opacity duration-300 ${
           isMobileSidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
         onClick={() => setIsMobileSidebarOpen(false)}
       />
-
-      {/* 抽屉本体（移动端分类过多时，超过 90vh 才出现滚动） */}
       <aside
         className={`fixed left-0 top-1/2 -translate-y-1/2 z-[70] w-[280px] px-3 md:hidden transition-transform duration-300 ease-out ${
           isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
@@ -468,7 +370,6 @@ export default function Home() {
         style={{ maxHeight: '90vh', overflowY: 'auto' }}
       >
         <div className="relative">
-          {/* 关闭按钮 */}
           <button
             onClick={() => setIsMobileSidebarOpen(false)}
             className="absolute -top-2 -right-2 z-10 w-8 h-8 rounded-full bg-white/10 backdrop-blur-md text-white/70 hover:text-white flex items-center justify-center border border-white/10 cursor-pointer"
@@ -476,13 +377,12 @@ export default function Home() {
           >
             <X className="w-4 h-4" />
           </button>
-          
           {renderSidebarContent(true)}
         </div>
       </aside>
 
-      {/* ====== 右侧主内容区（用 pl 让出侧边栏空间，宽度自适应） ====== */}
-      <div 
+      {/* 右侧主内容区 */}
+      <div
         className={`relative z-10 flex min-h-screen transition-all duration-300 ${
           isCollapsed ? 'md:pl-[72px]' : 'md:pl-[230px]'
         } w-full`}
@@ -494,7 +394,6 @@ export default function Home() {
           }`}
           style={{ minWidth: 0 }}
         >
-
           {/* 移动端标题 */}
           <header className="text-center mb-8 animate-fade-in sm:hidden" style={{ animationDelay: '0.1s' }}>
             <a
@@ -508,31 +407,28 @@ export default function Home() {
             </a>
           </header>
 
-          {/* 全局小组件区域 */}
+          {/* 小组件区域 */}
           {widgets && widgets.length > 0 && (
-            <div 
+            <div
               className={`w-full max-w-7xl mb-6 animate-fade-in flex relative z-40 ${
-                settings.widgetAlignment === 'left' ? 'justify-start' : 
-                settings.widgetAlignment === 'right' ? 'justify-end' : 
-                'justify-center'
-              }`} 
+                settings.widgetAlignment === 'left' ? 'justify-start' :
+                settings.widgetAlignment === 'right' ? 'justify-end' : 'justify-center'
+              }`}
               style={{ animationDelay: '0.2s' }}
             >
-              <div 
-                className="flex flex-wrap gap-3 sm:gap-4 px-1 relative z-40" 
-                style={{ 
+              <div
+                className="flex flex-wrap gap-3 sm:gap-4 px-1 relative z-40"
+                style={{
                   width: '100%',
-                  justifyContent: settings.widgetAlignment === 'left' ? 'flex-start' : 
-                                  settings.widgetAlignment === 'right' ? 'flex-end' : 
-                                  'center'
+                  justifyContent: settings.widgetAlignment === 'left' ? 'flex-start' :
+                                  settings.widgetAlignment === 'right' ? 'flex-end' : 'center'
                 }}
               >
                 {widgets.map((widget, index) => {
-                  const widthClass = 
+                  const widthClass =
                     widget.size?.startsWith('4x') ? 'widget-width-4x' :
                     widget.size?.startsWith('3x') ? 'widget-width-3x' :
                     widget.size?.startsWith('2x') ? 'widget-width-2x' : 'widget-width-1x';
-                  
                   const heightClass = !widget.showBackground && !widget.size?.endsWith('x2')
                     ? 'h-auto'
                     : widget.size?.endsWith('x2') ? 'widget-height-2x' : 'widget-height-1x';
@@ -563,15 +459,14 @@ export default function Home() {
                   className="animate-fade-in-scale"
                   style={{ animationDelay: `${0.4 + catIndex * 0.1}s` }}
                 >
-                  {/* 分类标题（字号放大） */}
                   <h2 className="text-base sm:text-lg font-bold uppercase tracking-[0.2em] text-white/60 px-3 mb-6 flex items-center gap-3">
                     {renderIcon(category.icon, undefined, 'w-5 h-5')}
                     {category.title}
                     <span className="text-white/25 font-medium text-sm">({category.bookmarks.length})</span>
                   </h2>
 
-                  {/* ====== 统一卡片样式：grid 和 list 都用同一套紧凑卡片，高度固定 110px ====== */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-5 px-1 items-start w-full min-w-0">
+                  {/* 卡片列表：固定宽高 + 自动换行 */}
+                  <div className="flex flex-wrap gap-4 sm:gap-5 px-1 w-full min-w-0">
                     {category.bookmarks.map((bookmark) => (
                       <a
                         key={bookmark.id}
@@ -579,23 +474,34 @@ export default function Home() {
                         target="_blank"
                         rel="noopener noreferrer"
                         onContextMenu={(e) => handleContextMenu(e, bookmark)}
-                        className="flex items-center p-4 sm:p-5 rounded-2xl glass hover:bg-white/10 hover:-translate-y-0.5 hover:border-white/15 transition-all duration-300 group min-w-0"
-                        style={{ height: '80px' }}
+                        className="flex items-center p-3 sm:p-4 rounded-2xl glass hover:bg-white/10 hover:-translate-y-0.5 hover:border-white/15 transition-all duration-300 group min-w-0"
+                        style={{
+                          width: `${cardWidth}px`,
+                          height: `${cardHeight}px`,
+                          maxWidth: '100%',
+                        }}
                       >
-                        <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-white/5 flex items-center justify-center mr-3 sm:mr-4 group-hover:bg-white/10 transition-colors duration-300 shrink-0">
-                          {renderIcon(bookmark.icon, bookmark.url, 'w-6 h-6 sm:w-7 sm:h-7')}
+                        <div
+                          className="rounded-xl bg-white/5 flex items-center justify-center mr-3 group-hover:bg-white/10 transition-colors duration-300 shrink-0"
+                          style={{ width: `${iconBoxSize}px`, height: `${iconBoxSize}px` }}
+                        >
+                          {renderIcon(
+                            bookmark.icon,
+                            bookmark.url,
+                            cardHeight < 70 ? 'w-4 h-4' : cardHeight < 110 ? 'w-5 h-5' : 'w-6 h-6'
+                          )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm sm:text-base font-bold text-white group-hover:text-white transition-colors duration-300 truncate">
+                          <p className={`${titleFontSize} font-bold text-white group-hover:text-white transition-colors duration-300 truncate`}>
                             {bookmark.title}
                           </p>
-                          {bookmark.description && (
-                            <p className="text-[11px] sm:text-xs text-white/50 uppercase tracking-wider mt-0.5 truncate">
+                          {bookmark.description && cardHeight >= 70 && (
+                            <p className={`${descFontSize} text-white/50 uppercase tracking-wider mt-0.5 truncate`}>
                               {bookmark.description}
                             </p>
                           )}
                         </div>
-                        <ExternalLink className="w-4 h-4 sm:w-5 sm:h-5 text-white/0 group-hover:text-white/30 transition-all duration-300 shrink-0 ml-2 hidden sm:block" />
+                        <ExternalLink className="w-4 h-4 text-white/0 group-hover:text-white/30 transition-all duration-300 shrink-0 ml-2 hidden sm:block" />
                       </a>
                     ))}
                   </div>
@@ -610,7 +516,6 @@ export default function Home() {
               <span className="tracking-wider uppercase select-none text-white/50">{t.builtBy}</span>
               <span className="text-white/30 select-none">•</span>
               <div className="flex items-center gap-3">
-                {/* 👇 个人博客链接：把 href 和文字换成你自己的 👇 */}
                 <a
                   href="https://myblog.xwgt.xyz"
                   target="_blank"
@@ -622,7 +527,6 @@ export default function Home() {
                   <span>个人博客</span>
                 </a>
                 <span className="text-white/30 select-none">•</span>
-                {/* 👇 GitHub 链接：把 href 换成你自己的 👇 */}
                 <a
                   href="https://github.com/Smile-wa/YuNest/"
                   target="_blank"
@@ -644,23 +548,17 @@ export default function Home() {
         <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
           <div className="absolute inset-0 bg-black/75 backdrop-blur-md transition-opacity" onClick={() => setShowAuthModal(false)} />
           <div className="relative w-full max-w-sm glass-modal rounded-3xl p-8 shadow-2xl animate-fade-in-scale text-white">
-            <button 
-              onClick={() => setShowAuthModal(false)}
-              className="absolute top-4 right-4 text-white/40 hover:text-white transition-colors p-2"
-            >
+            <button onClick={() => setShowAuthModal(false)} className="absolute top-4 right-4 text-white/40 hover:text-white transition-colors p-2">
               <X className="w-5 h-5" />
             </button>
-            
             <div className="flex flex-col items-center text-center space-y-6">
               <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-white/80 border border-white/10 mb-2">
                 <Lock className="w-8 h-8" />
               </div>
-              
               <div>
                 <h3 className="text-xl font-bold text-white mb-2">{t.adminAuthTitle}</h3>
                 <p className="text-sm text-white/40 leading-relaxed">{t.adminAuthDesc}</p>
               </div>
-
               <form onSubmit={handleAdminAuth} className="w-full space-y-4">
                 <div className="relative group">
                   <input
@@ -691,11 +589,7 @@ export default function Home() {
                     <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
                   </div>
                 )}
-
-                <button
-                  type="submit"
-                  className="w-full py-4 bg-white text-black font-black rounded-2xl hover:bg-white/90 active:scale-95 transition-all shadow-xl shadow-white/5"
-                >
+                <button type="submit" className="w-full py-4 bg-white text-black font-black rounded-2xl hover:bg-white/90 active:scale-95 transition-all shadow-xl shadow-white/5">
                   {t.adminAuthSubmit}
                 </button>
               </form>
@@ -706,48 +600,41 @@ export default function Home() {
 
       {/* 右键菜单 */}
       {contextMenu && (
-        <div 
+        <div
           className="fixed z-[200] w-48 glass-strong rounded-2xl p-1.5 shadow-2xl border border-white/10 animate-fade-in origin-top-left"
-          style={{ 
-            left: Math.min(contextMenu.x, window.innerWidth - 200), 
-            top: Math.min(contextMenu.y, window.innerHeight - 120) 
+          style={{
+            left: Math.min(contextMenu.x, window.innerWidth - 200),
+            top: Math.min(contextMenu.y, window.innerHeight - 120)
           }}
           onClick={(e) => e.stopPropagation()}
         >
-            <div className="px-3 py-2 text-[10px] font-bold text-white/30 uppercase tracking-widest border-b border-white/5 mb-1">
-              {t.openMethod}
+          <div className="px-3 py-2 text-[10px] font-bold text-white/30 uppercase tracking-widest border-b border-white/5 mb-1">
+            {t.openMethod}
+          </div>
+          <button
+            onClick={() => { window.open(contextMenu.bookmark.url, '_blank'); setContextMenu(null); }}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/10 text-white/80 hover:text-white transition-all group"
+          >
+            <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors">
+              <Icons.Globe className="w-4 h-4 text-blue-400" />
             </div>
-            <button
-              onClick={() => {
-                window.open(contextMenu.bookmark.url, '_blank');
-                setContextMenu(null);
-              }}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/10 text-white/80 hover:text-white transition-all group"
-            >
-              <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors">
-                <Icons.Globe className="w-4 h-4 text-blue-400" />
-              </div>
-              <div className="text-left">
-                <div className="text-xs font-bold leading-none mb-1">{t.defaultUrl}</div>
-                <div className="text-[10px] text-white/30 truncate w-24">{t.defaultUrlDesc}</div>
-              </div>
-            </button>
-            
-            <button
-              onClick={() => {
-                window.open(contextMenu.bookmark.lanUrl, '_blank');
-                setContextMenu(null);
-              }}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/10 text-white/80 hover:text-white transition-all group mt-1"
-            >
-              <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors">
-                <Icons.Network className="w-4 h-4 text-emerald-400" />
-              </div>
-              <div className="text-left">
-                <div className="text-xs font-bold leading-none mb-1">{t.lanUrl}</div>
-                <div className="text-[10px] text-white/30 truncate w-24">{t.lanUrlDesc}</div>
-              </div>
-            </button>
+            <div className="text-left">
+              <div className="text-xs font-bold leading-none mb-1">{t.defaultUrl}</div>
+              <div className="text-[10px] text-white/30 truncate w-24">{t.defaultUrlDesc}</div>
+            </div>
+          </button>
+          <button
+            onClick={() => { window.open(contextMenu.bookmark.lanUrl, '_blank'); setContextMenu(null); }}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/10 text-white/80 hover:text-white transition-all group mt-1"
+          >
+            <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors">
+              <Icons.Network className="w-4 h-4 text-emerald-400" />
+            </div>
+            <div className="text-left">
+              <div className="text-xs font-bold leading-none mb-1">{t.lanUrl}</div>
+              <div className="text-[10px] text-white/30 truncate w-24">{t.lanUrlDesc}</div>
+            </div>
+          </button>
         </div>
       )}
     </div>
