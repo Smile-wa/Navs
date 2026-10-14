@@ -83,12 +83,38 @@ main::-webkit-scrollbar-thumb:hover {
   background: transparent;
 }
 
-/* 后台管理页浅色滚动条 */
-.admin-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.12);
+/* ========================================= */
+/* === 后台分类标签栏：明显的横向滚动条 ======= */
+/* ========================================= */
+
+.admin-scrollbar {
+  /* Firefox 滚动条 */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(236, 91, 19, 0.6) rgba(0, 0, 0, 0.06);
 }
+
+/* Chrome / Edge / Safari 滚动条 */
+.admin-scrollbar::-webkit-scrollbar {
+  height: 10px; /* 加粗到 10px，一眼可见 */
+}
+
+.admin-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05); /* 浅灰轨道，让滚动范围可见 */
+  border-radius: 5px;
+  margin: 0 4px;
+}
+
+.admin-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(236, 91, 19, 0.55); /* 主题橙色，醒目 */
+  border-radius: 5px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  transition: background 0.2s;
+}
+
 .admin-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(236, 91, 19, 0.85); /* 悬浮时更深 */
+  background-clip: padding-box;
 }
 
 /* ========================================= */
@@ -273,24 +299,4 @@ aside.md\:hidden .sidebar-scroll::-webkit-scrollbar {
  */
 .flex-wrap > * {
   flex-shrink: 0;
-}
-/* ========================================= */
-/* === 后台分类标签栏：横向滚动条美化 ========= */
-/* ========================================= */
-
-.admin-scrollbar::-webkit-scrollbar {
-  height: 6px;
-}
-
-.admin-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.admin-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.12);
-  border-radius: 3px;
-}
-
-.admin-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.2);
 }
