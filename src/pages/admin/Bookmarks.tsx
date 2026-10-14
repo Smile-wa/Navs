@@ -1,14 +1,13 @@
 /**
  * 书签目录管理页面
  * NOTE: 支持分组的 CRUD 和站点的 CRUD，包含分类和书签的模态框编辑
- *       分类标签栏采用【横向滚动】方案，保留拖拽排序功能；
- *       "新增分组" 按钮固定在分类栏最左侧，不随标签滚动
+ *       书签卡片支持【快速移动到其他分组】
  */
 
 import React, { useState, useRef } from 'react';
 import { useData, type Category, type Bookmark } from '../../context/DataContext.tsx';
 import * as Icons from 'lucide-react';
-import { Plus, Edit2, Trash2, FolderOpen, LayoutGrid, LayoutList, Eye, EyeOff, Lock, Globe, GripVertical, HelpCircle } from 'lucide-react';
+import { Plus, Edit2, Trash2, FolderOpen, LayoutGrid, LayoutList, Eye, EyeOff, Lock, Globe, GripVertical, HelpCircle, FolderInput, Check } from 'lucide-react';
 import { Reorder, useDragControls } from 'motion/react';
 import { TRANSLATIONS } from '../../i18n/translations.ts';
 import ConfirmModal from '../../components/ConfirmModal.tsx';
@@ -157,7 +156,7 @@ function CategoryTabsReorderList({
       axis="x"
       values={items}
       onReorder={handleReorder}
-      className="flex items-center gap-1.5 min-w-max"
+      className="flex flex-wrap items-center gap-1.5"
     >
       {items.map((category) => (
         <CategoryTabItem
@@ -178,10 +177,13 @@ interface BookmarkRowItemProps {
   renderIcon: (iconName: string, siteUrl?: string, size?: string) => React.ReactNode;
   onEdit: (bookmark: Bookmark) => void;
   onDelete: (bookmark: Bookmark) => void;
+  onMove: (bookmark: Bookmark, e: React.MouseEvent) => void;
   onDragEnd: () => void;
 }
 
-function BookmarkRowItem({ bookmark, renderIcon, onEdit, onDelete, onDragEnd }: BookmarkRowItemProps) {
+function BookmarkRowItem({ bookmark, renderIcon, onEdit, onDelete, onMove, onDragEnd }: BookmarkRowItemProps) {
+  const { state } = useData();
+  const t = TRANSLATIONS[state.settings.language || 'zh-CN'];
   const dragControls = useDragControls();
   const timerRef = useRef<any>(null);
   const isDraggingRef = useRef(false);
@@ -283,6 +285,13 @@ function BookmarkRowItem({ bookmark, renderIcon, onEdit, onDelete, onDragEnd }: 
 
         <div className="flex items-center gap-1 flex-shrink-0">
           <button
+            onClick={(e) => onMove(bookmark, e)}
+            className="p-2 rounded-lg text-slate-400 hover:text-[#ec5b13] hover:bg-[#ec5b13]/5 transition-colors"
+            title={t.moveBookmark || '移动到分组'}
+          >
+            <FolderInput className="w-4 h-4" />
+          </button>
+          <button
             onClick={() => onEdit(bookmark)}
             className="p-2 rounded-lg text-slate-400 hover:text-[#ec5b13] hover:bg-[#ec5b13]/5 transition-colors"
             title="Edit"
@@ -309,6 +318,7 @@ function BookmarksReorderList({
   renderIcon,
   onEdit,
   onDelete,
+  onMove,
 }: {
   categoryId: string;
   bookmarks: Bookmark[];
@@ -316,6 +326,7 @@ function BookmarksReorderList({
   renderIcon: (iconName: string, siteUrl?: string, size?: string) => React.ReactNode;
   onEdit: (bookmark: Bookmark) => void;
   onDelete: (bookmark: Bookmark) => void;
+  onMove: (bookmark: Bookmark, e: React.MouseEvent) => void;
 }) {
   const [items, setItems] = React.useState<Bookmark[]>(bookmarks);
   const itemsRef = useRef<Bookmark[]>(bookmarks);
@@ -348,6 +359,7 @@ function BookmarksReorderList({
           renderIcon={renderIcon}
           onEdit={onEdit}
           onDelete={onDelete}
+          onMove={onMove}
           onDragEnd={handleDragEnd}
         />
       ))}
@@ -365,6 +377,7 @@ export default function Bookmarks() {
     addBookmark,
     updateBookmark,
     deleteBookmark,
+    moveBookmark,
     setBookmarksOrder,
   } = useData();
   const t = TRANSLATIONS[state.settings.language || 'zh-CN'];
@@ -399,6 +412,13 @@ export default function Bookmarks() {
     onConfirm: () => { },
     type: 'warning'
   });
+
+  // 移动书签菜单状态
+  const [moveMenu, setMoveMenu] = useState<{
+    bookmark: Bookmark;
+    x: number;
+    y: number;
+  } | null>(null);
 
   const currentCategory = state.categories.find((c) => c.id === activeCategory);
 
@@ -445,7 +465,6 @@ export default function Bookmarks() {
     if (!bookmarkForm.title || !activeCategory || !bookmarkForm.url) return;
     
     const finalForm = { ...bookmarkForm, itemType: 'link' } as any;
-    // 未填图标时自动补全为代理 URL，直接存代理格式（/api/icon-proxy?host=xxx）
     if (!finalForm.icon && finalForm.url) {
       finalForm.icon = getFaviconProxyUrl(finalForm.url);
     }
@@ -472,11 +491,8 @@ export default function Bookmarks() {
     setIsBookmarkModalOpen(true);
   };
 
-
-
   /** 渲染预览图标（统一走代理） */
   const renderItemIcon = (iconName: string, siteUrl?: string, size: string = 'w-5 h-5') => {
-    // 1. URL 图片（先规范化已知被墙 URL）
     if (iconName && (iconName.startsWith('http://') || iconName.startsWith('https://') || iconName.startsWith('/') || iconName.startsWith('data:'))) {
       const src = normalizeIconUrl(iconName);
       const isProxyUrl = src.startsWith('/api/icon-proxy');
@@ -506,11 +522,9 @@ export default function Bookmarks() {
       );
     }
 
-    // 2. Lucide 图标
     const IconComponent = (Icons as any)[iconName];
     if (IconComponent) return <IconComponent className={size} />;
 
-    // 3. 自动 Favicon（通过代理）
     if (siteUrl) {
       return (
         <img
@@ -527,12 +541,11 @@ export default function Bookmarks() {
       );
     }
 
-    // 4. 默认图标
     return <Globe className={size} />;
   };
 
   return (
-    <div className="p-6 sm:p-8 max-w-6xl mx-auto space-y-8 min-w-0">
+    <div className="p-6 sm:p-8 max-w-6xl mx-auto space-y-8">
       {/* 页面标题 */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div className="space-y-1">
@@ -545,7 +558,6 @@ export default function Bookmarks() {
               >
                 <HelpCircle className="w-5 h-5" />
               </div>
-              {/* Tooltip 气泡 */}
               <div className="absolute left-0 top-full mt-1.5 hidden group-hover:flex items-center px-3 py-1.5 bg-slate-900/90 text-white text-xs font-medium rounded-xl whitespace-nowrap shadow-xl backdrop-blur-sm z-50 pointer-events-none transition-all">
                 {t.dragToReorderTip}
               </div>
@@ -555,16 +567,16 @@ export default function Bookmarks() {
         </div>
       </div>
 
-      {/* 
-        分类标签栏 + 新增分组按钮
-        布局：
-          [ 新增分组 ] | [ 分类标签横向滚动区 ]
-        - "新增分组" 固定在左侧，不随滚动移动
-        - 分类标签在右侧滚动，滚动条独立占据空间，不与下方书签列表重叠
-      */}
+      {/* 分类标签页 */}
       {state.categories.length > 0 && (
-        <div className="flex items-center gap-3 pt-3 pb-4 min-w-0">
-          {/* 左侧：固定的"新增分组"按钮 */}
+        <div className="flex flex-wrap items-center gap-2 pt-3 pb-3 px-1.5 -my-2">
+          <CategoryTabsReorderList
+            categories={state.categories}
+            activeCategory={activeCategory}
+            onSelectCategory={setActiveCategory}
+            onSaveOrder={setCategoriesOrder}
+          />
+
           <button
             onClick={() => {
               setEditingCategory(null);
@@ -576,19 +588,6 @@ export default function Bookmarks() {
             <Plus className="w-4 h-4" />
             {t.addCategory}
           </button>
-
-          {/* 分隔线 */}
-          <div className="h-8 w-px bg-slate-200 flex-shrink-0" />
-
-          {/* 右侧：分类标签横向滚动区（底部预留滚动条空间） */}
-          <div className="flex-1 min-w-0 overflow-x-auto admin-scrollbar pb-3">
-            <CategoryTabsReorderList
-              categories={state.categories}
-              activeCategory={activeCategory}
-              onSelectCategory={setActiveCategory}
-              onSaveOrder={setCategoriesOrder}
-            />
-          </div>
         </div>
       )}
 
@@ -653,6 +652,14 @@ export default function Bookmarks() {
                     message: t.deleteConfirmBookmark,
                     type: 'danger',
                     onConfirm: () => deleteBookmark(currentCategory.id, b.id)
+                  });
+                }}
+                onMove={(bookmark, e) => {
+                  e.stopPropagation();
+                  setMoveMenu({
+                    bookmark,
+                    x: e.clientX,
+                    y: e.clientY,
                   });
                 }}
               />
@@ -831,6 +838,68 @@ export default function Bookmarks() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* ===== 移动书签菜单 ===== */}
+      {moveMenu && (
+        <>
+          {/* 全屏透明遮罩：点击关闭菜单 */}
+          <div
+            className="fixed inset-0 z-[299]"
+            onClick={() => setMoveMenu(null)}
+          />
+
+          {/* 菜单本体 */}
+          <div
+            className="fixed z-[300] w-56 bg-white rounded-2xl shadow-2xl border border-slate-200 py-2 animate-fade-in origin-top-left max-h-[70vh] overflow-y-auto"
+            style={{
+              left: Math.min(moveMenu.x, window.innerWidth - 240),
+              top: Math.min(moveMenu.y, window.innerHeight - 320),
+            }}
+          >
+            <div className="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 mb-1 flex items-center gap-1.5">
+              <FolderInput className="w-3 h-3" />
+              {t.moveTo || '移动到'}
+            </div>
+
+            {state.categories.map((cat) => {
+              const isCurrent = cat.id === activeCategory;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => {
+                    if (!isCurrent) {
+                      moveBookmark(activeCategory, cat.id, moveMenu.bookmark.id);
+                    }
+                    setMoveMenu(null);
+                  }}
+                  disabled={isCurrent}
+                  className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm transition-colors ${
+                    isCurrent
+                      ? 'text-slate-300 cursor-not-allowed'
+                      : 'text-slate-700 hover:bg-[#ec5b13]/5 hover:text-[#ec5b13] cursor-pointer'
+                  }`}
+                >
+                  <div className="w-5 h-5 flex-shrink-0 flex items-center justify-center">
+                    <FolderOpen className="w-3.5 h-3.5 opacity-60" />
+                  </div>
+                  <span className="flex-1 text-left truncate font-medium">{cat.title}</span>
+                  {isCurrent && (
+                    <span className="text-[10px] font-bold text-slate-300">
+                      {t.moveToCurrent || '当前'}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+
+            {state.categories.length <= 1 && (
+              <div className="px-3 py-3 text-xs text-slate-400 text-center">
+                暂无其他分组
+              </div>
+            )}
+          </div>
+        </>
       )}
 
       <ConfirmModal
