@@ -274,3 +274,23 @@ aside.md\:hidden .sidebar-scroll::-webkit-scrollbar {
 .flex-wrap > * {
   flex-shrink: 0;
 }
+/* ========================================= */
+/* === 后台分类标签栏：横向滚动条美化 ========= */
+/* ========================================= */
+
+.admin-scrollbar::-webkit-scrollbar {
+  height: 6px;
+}
+
+.admin-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.admin-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 3px;
+}
+
+.admin-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
