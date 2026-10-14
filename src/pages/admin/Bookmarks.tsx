@@ -1,6 +1,7 @@
 /**
  * 书签目录管理页面
  * NOTE: 支持分组的 CRUD 和站点的 CRUD，包含分类和书签的模态框编辑
+ *       分类标签栏采用【横向滚动】方案，保留拖拽排序功能，避免换行导致重叠
  */
 
 import React, { useState, useRef } from 'react';
@@ -155,7 +156,7 @@ function CategoryTabsReorderList({
       axis="x"
       values={items}
       onReorder={handleReorder}
-      className="flex flex-wrap items-center gap-1.5 min-w-0 w-full"
+      className="flex items-center gap-1.5 min-w-max"
     >
       {items.map((category) => (
         <CategoryTabItem
@@ -553,9 +554,9 @@ export default function Bookmarks() {
         </div>
       </div>
 
-      {/* 分类标签页（长按/拖拽吸附排序，自动换行） */}
+      {/* 分类标签页（长按/拖拽吸附排序，横向滚动） */}
       {state.categories.length > 0 && (
-        <div className="flex flex-wrap items-center gap-2 pt-3 pb-3 px-1.5 -my-2 min-w-0 w-full">
+        <div className="flex items-center gap-2 pt-3 pb-3 px-1.5 -my-2 overflow-x-auto admin-scrollbar">
           <CategoryTabsReorderList
             categories={state.categories}
             activeCategory={activeCategory}
