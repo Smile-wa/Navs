@@ -172,20 +172,24 @@ export const TRANSLATIONS = {
     resetConfirm: '确定要重置所有数据吗？此操作不可撤销！',
 
     feedbackTitle: '关于与反馈',
-    feedbackDesc: '了解 Navs 项目详情，联系作者进行问题反馈或功能建议',
+    feedbackDesc: '了解 YuNest 项目详情，联系作者进行问题反馈或功能建议',
     aboutAuthor: '关于作者',
     aboutProject: '关于项目',
     contactEmail: '联系邮箱',
     githubRepo: 'GitHub 仓库',
     docSite: '官方文档',
     viewDocs: '查看使用文档',
-    docsTooltip: '点击访问 Navs 项目官方文档',
+    docsTooltip: '点击访问 YuNest 项目官方文档',
     githubLabel: 'GitHub 源码',
     licenseLabel: '开源协议',
     nonCommercial: '自由软件：本项目遵循 GPL-3.0 开源协议，您可以自由地运行、学习、共享和修改。',
-    attribution: '开源精神：修改后的作品必须以相同的协议开源。',
+    attribution: '开源精神：修改后的作品必须以相同的协议开源，并保留原作者 YUME-0721 的署名。',
     feedbackInstruction: '遇到问题可以通过 GitHub Issues 或邮件联系作者。您的反馈是项目进步的动力！',
     copied: '已复制!',
+        // ===== 移动书签 =====
+    moveBookmark: '移动到分组',
+    moveTo: '移动到',
+    moveToCurrent: '当前分组',
   },
   'en-US': {
     siteDescription: 'A modern, beautiful, and highly customizable personal static navigation tool.',
@@ -207,7 +211,7 @@ export const TRANSLATIONS = {
     searchDropdownHint: '↑ ↓ Select · ↵ Open · ESC Close',
     docSite: 'Docs',
     viewDocs: 'View Documentation',
-    docsTooltip: 'Click to visit Navs documentation',
+    docsTooltip: 'Click to visit YuNest documentation',
     githubLabel: 'GitHub Repo',
 
     backToHome: 'Back to Home',
@@ -360,16 +364,20 @@ export const TRANSLATIONS = {
     resetConfirm: 'Are you sure you want to reset all data? This cannot be undone!',
 
     feedbackTitle: 'About & Feedback',
-    feedbackDesc: 'Learn about the Navs project and contact the author for feedback',
+    feedbackDesc: 'Learn core project details and contact the author for issues',
     aboutAuthor: 'About Author',
     aboutProject: 'About Project',
     contactEmail: 'Contact Email',
     githubRepo: 'GitHub Repository',
     licenseLabel: 'License',
     nonCommercial: 'Free Software: Licensed under GPL-3.0. You are free to run, study, share and modify.',
-    attribution: 'Open Source: Derivatives must be licensed under the same terms with attribution to Smile-wa.',
+    attribution: 'Open Source: Derivatives must be licensed under the same terms with attribution to YUME-0721.',
     feedbackInstruction: 'Report issues via GitHub or Email. Your feedback drives our progress!',
     copied: 'Copied!',
+        // ===== Move Bookmark =====
+    moveBookmark: 'Move to Group',
+    moveTo: 'Move to',
+    moveToCurrent: 'Current',
   }
 };
 
