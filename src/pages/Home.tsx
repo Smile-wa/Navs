@@ -588,7 +588,7 @@ export default function Home() {
                 </a>
                 <span className="text-white/30 select-none">•</span>
                 <a
-                  href="https://github.com/Smile-wa/YuNest/"
+                  href="https://github.com/Smile-wa/Navs/"
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-1.5 text-white/70 hover:text-white transition-colors duration-200"
