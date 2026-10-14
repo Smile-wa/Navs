@@ -113,6 +113,7 @@ interface DataContextType {
   addBookmark: (categoryId: string, bookmark: Omit<Bookmark, 'id'>) => void;
   updateBookmark: (categoryId: string, bookmarkId: string, bookmark: Partial<Bookmark>) => void;
   deleteBookmark: (categoryId: string, bookmarkId: string) => void;
+  moveBookmark: (fromCategoryId: string, toCategoryId: string, bookmarkId: string) => void;
   reorderBookmarks: (categoryId: string, fromIndex: number, toIndex: number) => void;
   setBookmarksOrder: (categoryId: string, newBookmarks: Bookmark[]) => void;
   addWidget: (widget: Omit<Bookmark, 'id'>) => void;
@@ -339,6 +340,39 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     }));
   }, []);
 
+  /** 将书签从某个分类移动到另一个分类（保留原 id） */
+  const moveBookmark = useCallback((fromCategoryId: string, toCategoryId: string, bookmarkId: string) => {
+    if (fromCategoryId === toCategoryId) return;
+
+    setState((prev) => {
+      const fromCategory = prev.categories.find((c) => c.id === fromCategoryId);
+      if (!fromCategory) return prev;
+
+      const bookmark = fromCategory.bookmarks.find((b) => b.id === bookmarkId);
+      if (!bookmark) return prev;
+
+      return {
+        ...prev,
+        categories: prev.categories.map((c) => {
+          if (c.id === fromCategoryId) {
+            return {
+              ...c,
+              bookmarks: c.bookmarks.filter((b) => b.id !== bookmarkId),
+            };
+          }
+          if (c.id === toCategoryId) {
+            return {
+              ...c,
+              bookmarks: [...c.bookmarks, bookmark],
+            };
+          }
+          return c;
+        }),
+        updatedAt: Date.now(),
+      };
+    });
+  }, []);
+
   const reorderBookmarks = useCallback((categoryId: string, fromIndex: number, toIndex: number) => {
     setState((prev) => ({
       ...prev,
@@ -557,6 +591,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         addBookmark,
         updateBookmark,
         deleteBookmark,
+        moveBookmark,
         reorderBookmarks,
         setBookmarksOrder,
         addWidget,
