@@ -104,7 +104,7 @@ export default function Home() {
   const cardWidth = isMobile ? 'calc(50% - 6px)' : `${baseCardWidth}px`;
 
   // 图标盒尺寸
-  const iconBoxSize = Math.max(28, Math.round(cardHeight * 0.56));
+  const iconBoxSize = Math.max(32, Math.round(cardHeight * 0.72));
 
   // 标题字号（移动端下限稍小一点，避免溢出）
   const titleFontPx = isMobile
@@ -533,7 +533,7 @@ export default function Home() {
                           {renderIcon(
                             bookmark.icon,
                             bookmark.url,
-                            cardHeight < 70 ? 'w-4 h-4' : cardHeight < 110 ? 'w-5 h-5' : 'w-6 h-6'
+                            cardHeight < 70 ? 'w-5 h-5' : cardHeight < 110 ? 'w-7 h-7' : 'w-9 h-9'
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
