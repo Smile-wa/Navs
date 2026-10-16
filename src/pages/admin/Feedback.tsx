@@ -88,7 +88,7 @@ export default function Feedback() {
         {/* 项目信息卡片 */}
         <section className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
           <a 
-            href="https://myblog.xwgt.xyz/" 
+            href="https://myblog.xwgt.xyz/p/navs-%E4%B8%AA%E4%BA%BA%E5%AF%BC%E8%88%AA%E4%B8%BB%E9%A1%B5/" 
             target="_blank" 
             rel="noreferrer"
             className="absolute top-6 right-6 p-2.5 rounded-xl bg-slate-50 hover:bg-[#ec5b13]/10 text-slate-400 hover:text-[#ec5b13] transition-all group/docs border-none cursor-pointer"
