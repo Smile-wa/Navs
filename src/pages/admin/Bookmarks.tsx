@@ -1,7 +1,8 @@
 /**
  * 书签目录管理页面
  * NOTE: 支持分组的 CRUD 和站点的 CRUD，包含分类和书签的模态框编辑
- *       书签卡片支持【快速移动到其他分组】
+ *       分类标签栏采用【横向滚动】方案，保留拖拽排序功能；
+ *       "新增分组" 按钮固定在分类栏最左侧，不随标签滚动
  */
 
 import React, { useState, useRef } from 'react';
@@ -156,7 +157,7 @@ function CategoryTabsReorderList({
       axis="x"
       values={items}
       onReorder={handleReorder}
-      className="flex flex-wrap items-center gap-1.5"
+      className="flex items-center gap-1.5 w-max"
     >
       {items.map((category) => (
         <CategoryTabItem
@@ -545,7 +546,8 @@ export default function Bookmarks() {
   };
 
   return (
-    <div className="p-6 sm:p-8 max-w-6xl mx-auto space-y-8">
+    // 👇 关键点：限制最外层宽度为 w-full，绝不溢出
+    <div className="p-6 sm:p-8 max-w-6xl mx-auto space-y-8 w-full min-w-0 overflow-x-hidden">
       {/* 页面标题 */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div className="space-y-1">
@@ -567,16 +569,9 @@ export default function Bookmarks() {
         </div>
       </div>
 
-      {/* 分类标签页 */}
+      {/* 分类标签栏 + 新增分组按钮 */}
       {state.categories.length > 0 && (
-        <div className="flex flex-wrap items-center gap-2 pt-3 pb-3 px-1.5 -my-2">
-          <CategoryTabsReorderList
-            categories={state.categories}
-            activeCategory={activeCategory}
-            onSelectCategory={setActiveCategory}
-            onSaveOrder={setCategoriesOrder}
-          />
-
+        <div className="w-full max-w-full flex items-center gap-3 pt-3 pb-4 min-w-0">
           <button
             onClick={() => {
               setEditingCategory(null);
@@ -588,13 +583,24 @@ export default function Bookmarks() {
             <Plus className="w-4 h-4" />
             {t.addCategory}
           </button>
+
+          <div className="h-8 w-px bg-slate-200 flex-shrink-0" />
+
+          {/* 滚动区限制在此 */}
+          <div className="flex-1 min-w-0 overflow-x-auto admin-scrollbar pb-3">
+            <CategoryTabsReorderList
+              categories={state.categories}
+              activeCategory={activeCategory}
+              onSelectCategory={setActiveCategory}
+              onSaveOrder={setCategoriesOrder}
+            />
+          </div>
         </div>
       )}
 
       {/* 当前分类的书签列表 */}
       {currentCategory && (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          {/* 分类标题栏 */}
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden w-full">
           <div className="p-5 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-slate-50/50">
             <h3 className="font-bold text-slate-800 flex items-center gap-2 flex-wrap">
               <FolderOpen className="w-5 h-5 text-[#ec5b13]" />
@@ -636,7 +642,6 @@ export default function Bookmarks() {
             </button>
           </div>
 
-          {/* 书签拖拽排序列表 */}
           {currentCategory.bookmarks.length > 0 ? (
             <div className="p-2 sm:p-3">
               <BookmarksReorderList
@@ -675,7 +680,7 @@ export default function Bookmarks() {
         </div>
       )}
 
-      {/* 没有分类时的空状态 */}
+      {/* 空状态 */}
       {state.categories.length === 0 && (
         <div className="text-center py-20">
           <FolderOpen className="w-16 h-16 text-slate-300 mx-auto mb-4" />
