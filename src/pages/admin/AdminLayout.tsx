@@ -141,14 +141,14 @@ export default function AdminLayout() {
               <span>{t.backToHome}</span>
             </Link>
             <a
-              href="https://navdocs.072199.xyz/"
+              href="https://myblog.xwgt.xyz/"
               target="_blank"
               rel="noreferrer"
               className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-[#ec5b13] bg-[#ec5b13]/10 hover:bg-[#ec5b13]/20 transition-colors"
               title={t.docsTooltip}
             >
               <BookOpen className="w-3.5 h-3.5" />
-              <span>{t.docSite}</span>
+              <span>博客</span>
             </a>
           </div>
         </div>
@@ -163,17 +163,17 @@ export default function AdminLayout() {
             <div className="border-t border-slate-200/60 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-4 text-xs font-medium text-slate-400">
                 <a
-                  href="https://navdocs.072199.xyz/"
+                  href="https://myblog.xwgt.xyz/"
                   target="_blank"
                   rel="noreferrer"
                   className="hover:text-[#ec5b13] transition-colors inline-flex items-center gap-1"
                 >
                   <BookOpen className="w-3.5 h-3.5" />
-                  <span>{t.docSite}</span>
+                  <span>个人博客</span>
                 </a>
                 <span className="text-slate-200">|</span>
                 <a
-                  href="https://github.com/YUME-0721/YuNest"
+                  href="https://github.com/Smile-wa/Navs/"
                   target="_blank"
                   rel="noreferrer"
                   className="hover:text-slate-700 transition-colors inline-flex items-center gap-1"
