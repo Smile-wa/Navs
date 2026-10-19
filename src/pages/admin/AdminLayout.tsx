@@ -97,7 +97,7 @@ export default function AdminLayout() {
         {/* 侧边栏底部操作区 */}
         <div className="p-4 border-t border-slate-100">
           <a
-            href="https://navdocs.072199.xyz/"
+            href="https://myblog.xwgt.xyz/"
             target="_blank"
             rel="noreferrer"
             className="flex items-center justify-between px-3 py-2.5 rounded-lg text-slate-500 hover:bg-[#ec5b13]/5 hover:text-[#ec5b13] transition-all duration-200 font-medium group"
@@ -105,7 +105,7 @@ export default function AdminLayout() {
           >
             <div className="flex items-center gap-3">
               <BookOpen className="w-5 h-5 text-[#ec5b13]" />
-              <span className="text-sm font-semibold">{t.docSite}</span>
+              <span className="text-sm font-semibold">个人博客</span>
             </div>
             <ExternalLink className="w-3.5 h-3.5 opacity-40 group-hover:opacity-100 transition-opacity" />
           </a>
