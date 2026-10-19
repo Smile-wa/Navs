@@ -5,7 +5,11 @@
 
 import { useState, useEffect } from 'react';
 import { Outlet, NavLink, Link, useNavigate } from 'react-router-dom';
-import { Settings, Tags, RefreshCw, Home, Menu, X, Image as ImageIcon, MessageCircle, BookOpen, ExternalLink, Github } from 'lucide-react';
+import { 
+  Settings, Tags, RefreshCw, Home, Menu, X, 
+  Image as ImageIcon, MessageCircle, BookOpen, ExternalLink, Github,
+  FolderTree // 新增：分类图标
+} from 'lucide-react';
 import { useData } from '../../context/DataContext.tsx';
 import { TRANSLATIONS } from '../../i18n/translations.ts';
 
@@ -17,10 +21,11 @@ export default function AdminLayout() {
 
   const NAV_ITEMS = [
     { to: '/admin/settings', icon: Settings, label: t.navPersonalization },
-    { to: '/admin/bookmarks', icon: Tags, label: t.navBookmarks },
+    { to: '/admin/categories', icon: FolderTree, label: '分类管理' }, // 新增
+    { to: '/admin/bookmarks', icon: Tags, label: '书签管理' },        // 原“管理标签”
     { to: '/admin/wallpaper', icon: ImageIcon, label: t.navWallpaper },
     { to: '/admin/backup', icon: RefreshCw, label: t.navBackup },
-    { to: '/admin/feedback', icon: t.navFeedback.includes('反馈') ? MessageCircle : MessageCircle, label: t.navFeedback },
+    { to: '/admin/feedback', icon: MessageCircle, label: t.navFeedback },
   ];
 
   // 简单的路由守卫
@@ -92,15 +97,15 @@ export default function AdminLayout() {
         {/* 侧边栏底部操作区 */}
         <div className="p-4 border-t border-slate-100">
           <a
-            href="https://myblog.xwgt.xyz/"
+            href="https://navdocs.072199.xyz/"
             target="_blank"
             rel="noreferrer"
             className="flex items-center justify-between px-3 py-2.5 rounded-lg text-slate-500 hover:bg-[#ec5b13]/5 hover:text-[#ec5b13] transition-all duration-200 font-medium group"
-            title="个人博客"
+            title={t.docsTooltip}
           >
             <div className="flex items-center gap-3">
               <BookOpen className="w-5 h-5 text-[#ec5b13]" />
-              <span className="text-sm font-semibold">个人博客</span>
+              <span className="text-sm font-semibold">{t.docSite}</span>
             </div>
             <ExternalLink className="w-3.5 h-3.5 opacity-40 group-hover:opacity-100 transition-opacity" />
           </a>
@@ -136,14 +141,14 @@ export default function AdminLayout() {
               <span>{t.backToHome}</span>
             </Link>
             <a
-              href="https://myblog.xwgt.xyz/"
+              href="https://navdocs.072199.xyz/"
               target="_blank"
               rel="noreferrer"
               className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-[#ec5b13] bg-[#ec5b13]/10 hover:bg-[#ec5b13]/20 transition-colors"
-              title="个人博客"
+              title={t.docsTooltip}
             >
               <BookOpen className="w-3.5 h-3.5" />
-              <span>个人博客</span>
+              <span>{t.docSite}</span>
             </a>
           </div>
         </div>
@@ -158,17 +163,17 @@ export default function AdminLayout() {
             <div className="border-t border-slate-200/60 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-4 text-xs font-medium text-slate-400">
                 <a
-                  href="https://myblog.xwgt.xyz/"
+                  href="https://navdocs.072199.xyz/"
                   target="_blank"
                   rel="noreferrer"
                   className="hover:text-[#ec5b13] transition-colors inline-flex items-center gap-1"
                 >
                   <BookOpen className="w-3.5 h-3.5" />
-                  <span>个人博客</span>
+                  <span>{t.docSite}</span>
                 </a>
                 <span className="text-slate-200">|</span>
                 <a
-                  href="https://github.com/Smile-wa/Navs"
+                  href="https://github.com/YUME-0721/YuNest"
                   target="_blank"
                   rel="noreferrer"
                   className="hover:text-slate-700 transition-colors inline-flex items-center gap-1"
