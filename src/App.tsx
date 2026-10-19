@@ -22,7 +22,11 @@ export default function App() {
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<Navigate to="/admin/settings" replace />} />
             <Route path="settings" element={<Settings />} />
-            <Route path="bookmarks" element={<Bookmarks />} />
+            
+            {/* 分类管理与书签管理，共用同一个组件，通过传参区分视图 */}
+            <Route path="categories" element={<Bookmarks defaultView="categories" />} />
+            <Route path="bookmarks" element={<Bookmarks defaultView="bookmarks" />} />
+            
             <Route path="wallpaper" element={<Wallpaper />} />
             <Route path="backup" element={<Backup />} />
             <Route path="feedback" element={<Feedback />} />
