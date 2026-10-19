@@ -12,6 +12,10 @@ export interface Bookmark {
   lanUrl?: string;
   icon: string;
   description?: string;
+  /** 图标背景色（支持 hex、rgb 或 tailwind 颜色类） */
+  iconBgColor?: string;
+  /** 是否为私密链接（仅登录可见） */
+  isPrivate?: boolean;
   size?: '1x1' | '1x2' | '2x1' | '2x2';
   itemType?: 'link' | 'widget';
   widgetType?: string;
@@ -49,9 +53,9 @@ export interface Settings {
   githubSync?: boolean;
   widgetAlignment?: 'left' | 'center' | 'right';
   widgetBackground?: boolean;
-  /** 前台书签卡片高度（px） */
+  /** 前台书签卡片高度（px，60-200） */
   cardHeight?: number;
-  /** 前台书签卡片宽度（px） */
+  /** 前台书签卡片宽度（px，120-400） */
   cardWidth?: number;
 }
 
@@ -90,7 +94,7 @@ export const DEFAULT_SETTINGS: Settings = {
   githubSync: true,
   widgetAlignment: 'center',
   widgetBackground: false,
-  // ===== 前台卡片尺寸（长宽独立） =====
+  // ===== 前台卡片尺寸 =====
   cardHeight: 80,
   cardWidth: 240,
 };
