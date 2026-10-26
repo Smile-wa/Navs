@@ -1,5 +1,5 @@
 /**
- * YuNest 应用路由配置
+ * Navs 应用路由配置
  * NOTE: 使用 HashRouter 以兼容 Cloudflare Pages / EdgeOne 等静态托管平台
  */
 
