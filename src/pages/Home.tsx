@@ -1,7 +1,7 @@
 /**
- * YuNest 前台首页
+ * Navs 前台首页
  * NOTE: 左侧分类侧边栏 + 右侧卡片流，卡片尺寸由后台控制
- *       已适配桌面端 / 平板 / 手机三档，移动端每行 2 个卡片
+ *       已适配桌面端 / 平板 / 手机三档，卡片图标与文字比例已优化
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -103,18 +103,18 @@ export default function Home() {
   // 桌面端：使用后台设定值
   const cardWidth = isMobile ? 'calc(50% - 6px)' : `${baseCardWidth}px`;
 
-  // 图标盒尺寸
-  const iconBoxSize = Math.max(32, Math.round(cardHeight * 0.72));
+  // 图标盒尺寸 (稍微放大)
+  const iconBoxSize = Math.max(32, Math.round(cardHeight * 0.6));
 
-  // 标题字号（移动端下限稍小一点，避免溢出）
+  // 标题字号（像素值，随 cardHeight 线性变化）
   const titleFontPx = isMobile
-    ? Math.max(12, Math.round(cardHeight * 0.17))
-    : Math.max(14, Math.round(cardHeight * 0.19));
+    ? Math.max(13, Math.round(cardHeight * 0.18))
+    : Math.max(15, Math.round(cardHeight * 0.2));
 
   // 描述字号
   const descFontPx = isMobile
-    ? Math.max(10, Math.round(cardHeight * 0.13))
-    : Math.max(11, Math.round(cardHeight * 0.14));
+    ? Math.max(11, Math.round(cardHeight * 0.14))
+    : Math.max(12, Math.round(cardHeight * 0.15));
 
   const sidebarCategories = useMemo(() => {
     return categories
@@ -305,14 +305,14 @@ export default function Home() {
             {!collapsed && <span className="text-[13px] font-medium">设置</span>}
           </button>
           <a
-            href="https://myblog.xwgt.xyz"
+            href="https://navdocs.072199.xyz/"
             target="_blank"
             rel="noreferrer"
-            title="访问我的博客"
+            title={t.docsTooltip}
             className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-white/50 hover:text-white hover:bg-white/5 transition-all duration-300 no-underline"
           >
             <BookOpen className="w-4 h-4" />
-            {!collapsed && <span className="text-[13px] font-medium">博客</span>}
+            {!collapsed && <span className="text-[13px] font-medium">文档</span>}
           </a>
         </div>
 
@@ -432,11 +432,11 @@ export default function Home() {
           {isMobile && (
             <header className="text-center mb-6 animate-fade-in" style={{ animationDelay: '0.1s' }}>
               <a
-                href="https://myblog.xwgt.xyz"
+                href="https://navdocs.072199.xyz/"
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center gap-1 text-xs font-bold tracking-[0.4em] text-white/40 hover:text-white/80 uppercase no-underline transition-colors"
-                title="访问我的博客"
+                title={t.docsTooltip}
               >
                 {settings.siteName}
               </a>
@@ -503,7 +503,7 @@ export default function Home() {
                     <span className="text-white/25 font-medium text-sm">({category.bookmarks.length})</span>
                   </h2>
 
-                  {/* 卡片列表：移动端每行 2 个，桌面端固定宽度 */}
+                  {/* 卡片列表 */}
                   <div className={`flex flex-wrap w-full min-w-0 ${isMobile ? 'gap-3' : 'gap-4 sm:gap-5 px-1'}`}>
                     {category.bookmarks.map((bookmark) => (
                       <a
@@ -512,8 +512,9 @@ export default function Home() {
                         target="_blank"
                         rel="noopener noreferrer"
                         onContextMenu={(e) => handleContextMenu(e, bookmark)}
+                        // 调整了内边距，让卡片更饱满
                         className={`flex items-center rounded-2xl glass hover:bg-white/10 hover:-translate-y-0.5 hover:border-white/15 transition-all duration-300 group min-w-0 ${
-                          isMobile ? 'p-3' : 'p-3 sm:p-4'
+                          isMobile ? 'p-3.5' : 'p-4'
                         }`}
                         style={{
                           width: typeof cardWidth === 'number' ? `${cardWidth}px` : cardWidth,
@@ -521,40 +522,42 @@ export default function Home() {
                           maxWidth: '100%',
                         }}
                       >
-                        {/* 图标盒 */}
+                        {/* === 优化后的图标区域：更大、更深、圆角更圆 === */}
                         <div
-                          className="rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors duration-300 shrink-0"
+                          className="rounded-[14px] bg-black/25 flex items-center justify-center group-hover:bg-black/40 transition-colors duration-300 shrink-0 shadow-sm border border-white/10"
                           style={{
-                            width: `${iconBoxSize}px`,
-                            height: `${iconBoxSize}px`,
-                            marginRight: isMobile ? '10px' : '12px',
+                            width: `${iconBoxSize * 1.2}px`, 
+                            height: `${iconBoxSize * 1.2}px`,
+                            marginRight: isMobile ? '12px' : '16px', 
                           }}
                         >
                           {renderIcon(
                             bookmark.icon,
                             bookmark.url,
-                            cardHeight < 70 ? 'w-5 h-5' : cardHeight < 110 ? 'w-7 h-7' : 'w-9 h-9'
+                            // 显著放大了图标本身
+                            cardHeight < 70 ? 'w-6 h-6' : cardHeight < 110 ? 'w-8 h-8' : 'w-10 h-10' 
                           )}
                         </div>
-                        <div className="flex-1 min-w-0">
-                          {/* 标题 */}
+                        
+                        {/* === 文字区域：更大更饱满 === */}
+                        <div className="flex-1 min-w-0 flex flex-col justify-center">
                           <p
                             className="font-bold text-white group-hover:text-white transition-colors duration-300 truncate"
-                            style={{ fontSize: `${titleFontPx}px` }}
+                            style={{ fontSize: `${titleFontPx * 1.1}px` }}
                           >
                             {bookmark.title}
                           </p>
-                          {/* 描述 */}
-                          {bookmark.description && cardHeight >= 70 && (
+                          {bookmark.description && (
                             <p
-                              className="text-white/65 tracking-wide mt-1 truncate"
-                              style={{ fontSize: `${descFontPx}px` }}
+                              className="text-white/60 tracking-wide mt-1 truncate"
+                              style={{ fontSize: `${descFontPx * 1.05}px` }}
                             >
                               {bookmark.description}
                             </p>
                           )}
                         </div>
-                        {/* 外链图标（移动端不显示，节省空间） */}
+                        
+                        {/* 外链图标 */}
                         {!isMobile && (
                           <ExternalLink className="w-4 h-4 text-white/0 group-hover:text-white/30 transition-all duration-300 shrink-0 ml-2" />
                         )}
@@ -566,7 +569,7 @@ export default function Home() {
             )}
           </div>
 
-          {/* 页脚 */}
+          {/* 页脚（保留作者信息） */}
           <footer className={`mt-auto pt-8 pb-10 text-center animate-fade-in flex flex-col items-center gap-3.5 ${
             isMobile ? 'pb-6' : ''
           }`} style={{ animationDelay: '1.2s' }}>
@@ -577,22 +580,22 @@ export default function Home() {
               <span className={`text-white/30 select-none ${isMobile ? 'hidden' : ''}`}>•</span>
               <div className={`flex items-center ${isMobile ? 'gap-4' : 'gap-3'}`}>
                 <a
-                  href="https://myblog.xwgt.xyz"
+                  href="https://navdocs.072199.xyz/"
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-1.5 text-white/70 hover:text-white transition-colors duration-200"
-                  title="访问我的个人博客"
+                  title={t.docsTooltip}
                 >
                   <BookOpen className="w-4 h-4 text-[#ec5b13]" />
-                  <span>个人博客</span>
+                  <span>{t.docSite}</span>
                 </a>
                 <span className="text-white/30 select-none">•</span>
                 <a
-                  href="https://github.com/Smile-wa/Navs/"
+                  href="https://github.com/YUME-0721/YuNest"
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-1.5 text-white/70 hover:text-white transition-colors duration-200"
-                  title="访问我的 GitHub"
+                  title={t.githubRepo}
                 >
                   <Github className="w-4 h-4" />
                   <span>GitHub</span>
