@@ -305,14 +305,14 @@ export default function Home() {
             {!collapsed && <span className="text-[13px] font-medium">设置</span>}
           </button>
           <a
-            href="https://navdocs.072199.xyz/"
+            href="https://myblog.xwgt.xyz"
             target="_blank"
             rel="noreferrer"
-            title={t.docsTooltip}
+            title="访问我的博客"
             className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-white/50 hover:text-white hover:bg-white/5 transition-all duration-300 no-underline"
           >
             <BookOpen className="w-4 h-4" />
-            {!collapsed && <span className="text-[13px] font-medium">文档</span>}
+            {!collapsed && <span className="text-[13px] font-medium">博客</span>}
           </a>
         </div>
 
@@ -432,11 +432,11 @@ export default function Home() {
           {isMobile && (
             <header className="text-center mb-6 animate-fade-in" style={{ animationDelay: '0.1s' }}>
               <a
-                href="https://navdocs.072199.xyz/"
+                href="https://myblog.xwgt.xyz"
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center gap-1 text-xs font-bold tracking-[0.4em] text-white/40 hover:text-white/80 uppercase no-underline transition-colors"
-                title={t.docsTooltip}
+                title="访问我的博客"
               >
                 {settings.siteName}
               </a>
@@ -503,7 +503,7 @@ export default function Home() {
                     <span className="text-white/25 font-medium text-sm">({category.bookmarks.length})</span>
                   </h2>
 
-                  {/* 卡片列表 */}
+                  {/* 卡片列表：移动端每行 2 个，桌面端固定宽度 */}
                   <div className={`flex flex-wrap w-full min-w-0 ${isMobile ? 'gap-3' : 'gap-4 sm:gap-5 px-1'}`}>
                     {category.bookmarks.map((bookmark) => (
                       <a
@@ -522,9 +522,9 @@ export default function Home() {
                           maxWidth: '100%',
                         }}
                       >
-                        {/* === 优化后的图标区域：更大、更深、圆角更圆 === */}
+                        {/* === 优化后的图标区域：浅色半透明背景 === */}
                         <div
-                          className="rounded-[14px] bg-black/25 flex items-center justify-center group-hover:bg-black/40 transition-colors duration-300 shrink-0 shadow-sm border border-white/10"
+                          className="rounded-[14px] bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors duration-300 shrink-0 shadow-sm border border-white/10"
                           style={{
                             width: `${iconBoxSize * 1.2}px`, 
                             height: `${iconBoxSize * 1.2}px`,
@@ -580,22 +580,22 @@ export default function Home() {
               <span className={`text-white/30 select-none ${isMobile ? 'hidden' : ''}`}>•</span>
               <div className={`flex items-center ${isMobile ? 'gap-4' : 'gap-3'}`}>
                 <a
-                  href="https://navdocs.072199.xyz/"
+                  href="https://myblog.xwgt.xyz"
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-1.5 text-white/70 hover:text-white transition-colors duration-200"
-                  title={t.docsTooltip}
+                  title="访问我的个人博客"
                 >
                   <BookOpen className="w-4 h-4 text-[#ec5b13]" />
-                  <span>{t.docSite}</span>
+                  <span>个人博客</span>
                 </a>
                 <span className="text-white/30 select-none">•</span>
                 <a
-                  href="https://github.com/YUME-0721/YuNest"
+                  href="https://github.com/Smile-wa/Navs/"
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-1.5 text-white/70 hover:text-white transition-colors duration-200"
-                  title={t.githubRepo}
+                  title="访问我的 GitHub"
                 >
                   <Github className="w-4 h-4" />
                   <span>GitHub</span>
