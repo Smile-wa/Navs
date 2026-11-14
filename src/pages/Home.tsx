@@ -7,7 +7,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useData, PRESET_SEARCH_ENGINES } from '../context/DataContext.tsx';
 import {
-  Search,
   Settings as SettingsIcon,
   ExternalLink,
   Lock,
@@ -25,7 +24,9 @@ import * as Icons from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations.ts';
 import { WidgetRenderer } from '../components/widgets/WidgetRenderer.tsx';
 import { getFaviconProxyUrl, normalizeIconUrl } from '../lib/favicon.ts';
+import { isEmojiIcon, isIconifyIcon } from '../lib/icon.ts';
 import { FaviconImg } from '../components/FaviconImg.tsx';
+import { Icon } from '@iconify/react';
 
 
 /** 实时时钟 Hook */
@@ -161,7 +162,8 @@ export default function Home() {
   useEffect(() => {
     const root = document.documentElement;
     const blurValue = (settings.glassEffectOpacity / 100) * 40;
-    const opacityValue = 0.1 + (settings.glassEffectOpacity / 100) * 0.7;
+    // 透明度更通透：60% 设置下约 0.35，保留背景可读性
+    const opacityValue = 0.06 + (settings.glassEffectOpacity / 100) * 0.48;
     root.style.setProperty('--glass-blur', `${blurValue}px`);
     root.style.setProperty('--glass-opacity', `${opacityValue}`);
   }, [settings.glassEffectOpacity]);
@@ -217,7 +219,28 @@ export default function Home() {
     );
   }
 
+  /** 根据 tailwind 尺寸类换算 emoji 字号 */
+  const emojiFontSize = (size: string) => {
+    const m = size.match(/w-([\d.]+)/);
+    return `${m ? parseFloat(m[1]) * 4 : 20}px`;
+  };
+
   const renderIcon = (iconName: string, siteUrl?: string, size: string = 'w-5 h-5') => {
+    // emoji 图标优先：分类图标可直接填 emoji
+    if (iconName && isEmojiIcon(iconName)) {
+      return (
+        <span
+          className={`${size} inline-flex items-center justify-center leading-none select-none`}
+          style={{ fontSize: emojiFontSize(size) }}
+        >
+          {iconName.trim()}
+        </span>
+      );
+    }
+    // Iconify 图标名：例如 mdi:film、ph:film-slate
+    if (iconName && isIconifyIcon(iconName)) {
+      return <Icon icon={iconName.trim()} className={`${size} text-white/70`} />;
+    }
     if (iconName && (iconName.startsWith('http://') || iconName.startsWith('https://') || iconName.startsWith('/') || iconName.startsWith('data:'))) {
       const src = normalizeIconUrl(iconName);
       const isProxyUrl = src.startsWith('/api/icon-proxy');
@@ -351,7 +374,7 @@ export default function Home() {
             src={bgUrl}
             alt="Background"
             onLoad={() => setIsBgLoaded(true)}
-            className={`w-full h-full object-cover animate-bg-drift transition-opacity duration-1000 ${isBgLoaded ? 'opacity-100' : 'opacity-0'}`}
+            className={`w-full h-full object-cover transition-opacity duration-1000 ${isBgLoaded ? 'opacity-100' : 'opacity-0'}`}
             onError={(e) => {
               const target = e.target as HTMLImageElement;
               if (target.src !== 'https://pic.yumekai.top/pic?img=ua') target.src = 'https://pic.yumekai.top/pic?img=ua';
@@ -359,15 +382,15 @@ export default function Home() {
           />
         )}
         {settings.darkMask && (
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/90 pointer-events-none transition-opacity duration-500"
+          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/10 to-black/45 pointer-events-none transition-opacity duration-500"
             style={{ opacity: settings.darkMaskOpacity / 100 }} />
         )}
         {settings.glassEffect && (
           <div className="absolute inset-0 pointer-events-none transition-all duration-500"
             style={{
-              backdropFilter: `blur(${(settings.glassEffectOpacity / 100) * 12}px)`,
-              WebkitBackdropFilter: `blur(${(settings.glassEffectOpacity / 100) * 12}px)`,
-              backgroundColor: `rgba(0, 0, 0, ${(settings.glassEffectOpacity / 100) * 0.08})`
+              backdropFilter: `blur(${(settings.glassEffectOpacity / 100) * 5}px)`,
+              WebkitBackdropFilter: `blur(${(settings.glassEffectOpacity / 100) * 5}px)`,
+              backgroundColor: `rgba(0, 0, 0, ${(settings.glassEffectOpacity / 100) * 0.05})`
             }} />
         )}
       </div>
@@ -495,12 +518,15 @@ export default function Home() {
                   className="animate-fade-in-scale"
                   style={{ animationDelay: `${0.4 + catIndex * 0.1}s` }}
                 >
-                  <h2 className={`font-bold uppercase tracking-[0.2em] text-white/60 flex items-center gap-3 ${
-                    isMobile ? 'text-sm px-1 mb-4' : 'text-base sm:text-lg px-3 mb-6'
-                  }`}>
-                    {renderIcon(category.icon, undefined, 'w-5 h-5')}
-                    {category.title}
-                    <span className="text-white/25 font-medium text-sm">({category.bookmarks.length})</span>
+                  <h2 className={`font-bold flex items-center gap-3 ${isMobile ? 'text-sm px-1 mb-4' : 'text-base sm:text-lg px-3 mb-6'}`}>
+                    <span className="w-8 h-8 rounded-xl bg-white/10 border border-white/10 shadow-sm flex items-center justify-center shrink-0 backdrop-blur-sm">
+                      {renderIcon(category.icon, undefined, 'w-4.5 h-4.5')}
+                    </span>
+                    <span className="w-[3px] h-4 rounded-full bg-[#ec5b13] shrink-0" />
+                    <span className="tracking-wide text-white/85 drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">{category.title}</span>
+                    <span className="px-2.5 py-0.5 rounded-full bg-white/10 border border-white/10 text-white/50 font-medium text-xs backdrop-blur-sm">
+                      {category.bookmarks.length}
+                    </span>
                   </h2>
 
                   {/* 卡片列表：移动端每行 2 个，桌面端固定宽度 */}
@@ -524,7 +550,7 @@ export default function Home() {
                       >
                         {/* === 优化后的图标区域：浅色半透明背景 === */}
                         <div
-                          className="rounded-[14px] bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors duration-300 shrink-0 shadow-sm border border-white/10"
+                          className="rounded-[14px] bg-white/10 flex items-center justify-center group-hover:bg-white/15 transition-colors duration-300 shrink-0 shadow-sm border border-white/10"
                           style={{
                             width: `${iconBoxSize * 1.2}px`, 
                             height: `${iconBoxSize * 1.2}px`,

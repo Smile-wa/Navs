@@ -5,15 +5,20 @@
 
 import React, { useState, useMemo, useRef } from 'react';
 import { useData, type Category, type Bookmark } from '../../context/DataContext.tsx';
-import * as Icons from 'lucide-react';
 import { 
-  Plus, Edit2, Trash2, FolderOpen, Search, 
+  Plus, Edit2, Trash2, Search, 
   Link as LinkIcon, GripVertical 
 } from 'lucide-react';
 import { Reorder, useDragControls } from 'motion/react';
 import { TRANSLATIONS } from '../../i18n/translations.ts';
 import ConfirmModal from '../../components/ConfirmModal.tsx';
-import { getFaviconProxyUrl, normalizeIconUrl } from '../../lib/favicon.ts';
+import IconPicker, { IconPreview } from '../../components/IconPicker.tsx';
+import { getFaviconProxyUrl } from '../../lib/favicon.ts';
+
+// ================= 分类图标渲染（emoji / Iconify / Lucide / 默认文件夹） =================
+function CategoryIcon({ icon, emojiClass = 'text-xl' }: { icon?: string; emojiClass?: string }) {
+  return <IconPreview icon={icon} size="w-5 h-5" emojiClass={emojiClass} />;
+}
 
 // ================= 拖拽组件：分类行 =================
 function CategoryRowItem({
@@ -101,7 +106,7 @@ function CategoryRowItem({
           </div>
           
           <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
-            <FolderOpen className="w-5 h-5" />
+            <CategoryIcon icon={category.icon} />
           </div>
           <div>
             <div className="flex items-center gap-2">
@@ -209,7 +214,7 @@ function BookmarkRowItem({
         </div>
         <div className="flex items-center gap-3 min-w-0">
           <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center shrink-0 overflow-hidden" style={{ backgroundColor: bookmark.iconBgColor }}>
-            {bookmark.icon ? <img src={normalizeIconUrl(bookmark.icon)} alt="" className="w-5 h-5 object-contain" /> : <LinkIcon className="w-4 h-4 text-slate-400" />}
+            {bookmark.icon ? <IconPreview icon={bookmark.icon} size="w-5 h-5" emojiClass="text-lg" /> : <LinkIcon className="w-4 h-4 text-slate-400" />}
           </div>
           <div className="min-w-0">
             <div className="font-semibold text-slate-800 truncate">{bookmark.title}</div>
@@ -481,14 +486,29 @@ export default function Bookmarks({ defaultView = 'categories' }: { defaultView?
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-semibold text-slate-700">图标 (可选)</label>
-                  <input 
-                    type="text" 
-                    className="w-full mt-1.5 rounded-xl border-slate-200 bg-slate-50 px-4 py-3 outline-none border focus:ring-blue-500 focus:border-blue-500 transition-colors" 
-                    value={bookmarkForm.icon || ''} 
-                    onChange={e => setBookmarkForm({...bookmarkForm, icon: e.target.value})} 
-                    placeholder="URL / Lucide"
-                  />
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-semibold text-slate-700">图标 (可选)</label>
+                    <a
+                      href="https://icon-sets.iconify.design/"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-[11px] text-blue-600 hover:underline"
+                    >
+                      Iconify 图标库
+                    </a>
+                  </div>
+                  <div className="flex items-center gap-2 mt-1.5">
+                    <div className="w-11 h-11 shrink-0 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-center overflow-hidden">
+                      <IconPreview icon={bookmarkForm.icon} size="w-5 h-5" emojiClass="text-xl" />
+                    </div>
+                    <input 
+                      type="text" 
+                      className="flex-1 w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-3 outline-none border focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                      value={bookmarkForm.icon || ''} 
+                      onChange={e => setBookmarkForm({...bookmarkForm, icon: e.target.value})} 
+                      placeholder="URL / mdi:film / Lucide / emoji"
+                    />
+                  </div>
                 </div>
               </div>
               
@@ -536,10 +556,10 @@ export default function Bookmarks({ defaultView = 'categories' }: { defaultView?
                 <label className="text-sm font-medium text-slate-700">分类名称</label>
                 <input type="text" className="w-full mt-1.5 border border-slate-200 rounded-lg p-2.5 outline-none focus:border-blue-500" value={categoryForm.title} onChange={e => setCategoryForm({...categoryForm, title: e.target.value})} />
               </div>
-              <div>
-                <label className="text-sm font-medium text-slate-700">分类图标 (Lucide)</label>
-                <input type="text" className="w-full mt-1.5 border border-slate-200 rounded-lg p-2.5 outline-none focus:border-blue-500" value={categoryForm.icon} onChange={e => setCategoryForm({...categoryForm, icon: e.target.value})} />
-              </div>
+              <IconPicker
+                value={categoryForm.icon}
+                onChange={(icon) => setCategoryForm({ ...categoryForm, icon })}
+              />
               <label className="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" checked={categoryForm.isHidden} onChange={e => setCategoryForm({...categoryForm, isHidden: e.target.checked})} className="w-4 h-4 rounded border-slate-300 text-blue-600" />
                 <span className="text-sm text-slate-600">仅登录可见（私密）</span>
