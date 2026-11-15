@@ -30,8 +30,7 @@ export default function Personalization() {
 
   const handleSaveWidget = () => {
     const title = widgetForm.widgetType === 'clock' ? 'Clock' :
-                  widgetForm.widgetType === 'search' ? 'Search' :
-                  widgetForm.widgetType === 'weather' ? 'Weather' : 'Widget';
+                  widgetForm.widgetType === 'search' ? 'Search' : 'Widget';
     const finalForm = {
       ...widgetForm,
       title,
@@ -408,83 +407,82 @@ export default function Personalization() {
           </div>
         </section>
 
-        {/* ===== 右上角天气组件 ===== */}
-        <section>
-          <div className="flex items-center gap-2 mb-6">
-            <CloudSun className="w-5 h-5 text-[#ec5b13]" />
-            <h3 className="text-xl font-bold">天气组件（页面右上角）</h3>
-          </div>
-          <div className="grid gap-6 bg-white p-4 sm:p-8 rounded-2xl sm:rounded-3xl border border-slate-100 shadow-sm min-w-0 overflow-hidden">
-            {/* 显示开关 */}
-            <div className="flex items-center justify-between gap-4">
-              <div className="space-y-0.5">
-                <label className="text-sm font-semibold text-slate-800">显示天气组件</label>
-                <p className="text-[11px] text-slate-400">固定在首页右上角，使用简体中文显示实况天气</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setLocalSettings({ ...localSettings, showWeather: localSettings.showWeather === false })}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors flex-shrink-0 ${
-                  localSettings.showWeather !== false ? 'bg-[#ec5b13]' : 'bg-slate-200'
-                }`}
-              >
-                <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
-                  localSettings.showWeather !== false ? 'translate-x-6' : 'translate-x-1'
-                }`} />
-              </button>
-            </div>
-
-            {/* 手动输入地址 */}
-            <div className="flex flex-col gap-3 pt-4 border-t border-slate-100">
-              <label className="text-sm font-semibold flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-slate-400" />
-                城市 / 地址
-              </label>
-              <input
-                type="text"
-                id="setting-weather-location"
-                className="w-full rounded-xl border-slate-200 bg-slate-50 focus:ring-[#ec5b13] focus:border-[#ec5b13] px-4 py-3 outline-none border transition-colors text-sm"
-                placeholder="例如：北京、上海、杭州，或 39.90,116.40"
-                value={localSettings.weatherLocation || ''}
-                onChange={(e) => setLocalSettings({ ...localSettings, weatherLocation: e.target.value } as any)}
-              />
-              <p className="text-xs text-slate-400">
-                支持中文地名或「纬度,经度」，界面为简体中文；自动在「同源代理 / wttr.in / Open-Meteo」多个免费数据源间切换（无需密钥、带超时），每 30 分钟自动刷新。
-              </p>
-            </div>
-
-            {/* 透明背景开关 */}
-            <div className="flex items-center justify-between gap-4 pt-4 border-t border-slate-100">
-              <div className="space-y-0.5">
-                <label className="text-sm font-semibold text-slate-800">透明背景</label>
-                <p className="text-[11px] text-slate-400">开启后无底色、无边框，天气文字直接叠在壁纸上；关闭则显示玻璃卡片</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setLocalSettings({ ...localSettings, weatherTransparent: localSettings.weatherTransparent === false })}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors flex-shrink-0 ${
-                  localSettings.weatherTransparent !== false ? 'bg-[#ec5b13]' : 'bg-slate-200'
-                }`}
-              >
-                <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
-                  localSettings.weatherTransparent !== false ? 'translate-x-6' : 'translate-x-1'
-                }`} />
-              </button>
-            </div>
-
-            <p className="text-[11px] text-slate-400 -mt-2">
-              提示：若在下方小组件列表中额外添加了「天气」类型组件，将优先使用那个组件填写的地址与背景设置。
-            </p>
-          </div>
-        </section>
-
-        {/* ===== 小组件 ===== */}
+        {/* ===== 小组件（含右上角天气组件） ===== */}
         <section>
           <div className="flex items-center gap-2 mb-6">
             <Palette className="w-5 h-5 text-[#ec5b13]" />
             <h3 className="text-xl font-bold">{t.widgetSettings || '小组件'}</h3>
           </div>
           <div className="grid gap-6 bg-white p-4 sm:p-8 rounded-2xl sm:rounded-3xl border border-slate-100 shadow-sm min-w-0 overflow-hidden">
+            {/* ===== 天气组件：固定在页面右上角，不占用小组件列表 ===== */}
+            <div className="pb-6 border-b border-slate-100">
+              <div className="flex items-center gap-2 mb-1">
+                <CloudSun className="w-4 h-4 text-[#ec5b13]" />
+                <h4 className="text-base font-bold text-slate-800">天气组件（页面右上角）</h4>
+              </div>
+              <p className="text-[11px] text-slate-400 mb-4">
+                天气固定显示在首页右上角，不占用下方的小组件列表；桌面端滚动时自动收起为图标，点击可展开。
+              </p>
+
+              <div className="grid gap-4">
+                {/* 显示开关 */}
+                <div className="flex items-center justify-between gap-4">
+                  <div className="space-y-0.5">
+                    <label className="text-sm font-semibold text-slate-800">显示天气组件</label>
+                    <p className="text-[11px] text-slate-400">固定在首页右上角，使用简体中文显示实况天气</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setLocalSettings({ ...localSettings, showWeather: localSettings.showWeather === false })}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors flex-shrink-0 ${
+                      localSettings.showWeather !== false ? 'bg-[#ec5b13]' : 'bg-slate-200'
+                    }`}
+                  >
+                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                      localSettings.showWeather !== false ? 'translate-x-6' : 'translate-x-1'
+                    }`} />
+                  </button>
+                </div>
+
+                {/* 手动输入地址 */}
+                <div className="flex flex-col gap-2 pt-4 border-t border-slate-100">
+                  <label className="text-sm font-semibold flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-slate-400" />
+                    城市 / 地址
+                  </label>
+                  <input
+                    type="text"
+                    id="setting-weather-location"
+                    className="w-full rounded-xl border-slate-200 bg-slate-50 focus:ring-[#ec5b13] focus:border-[#ec5b13] px-4 py-3 outline-none border transition-colors text-sm"
+                    placeholder="例如：北京、上海、杭州，或 39.90,116.40"
+                    value={localSettings.weatherLocation || ''}
+                    onChange={(e) => setLocalSettings({ ...localSettings, weatherLocation: e.target.value } as any)}
+                  />
+                  <p className="text-xs text-slate-400">
+                    支持中文地名或「纬度,经度」，界面为简体中文；自动在「同源代理 / wttr.in / Open-Meteo」多个免费数据源间切换（无需密钥、带超时），每 30 分钟自动刷新。
+                  </p>
+                </div>
+
+                {/* 透明背景开关 */}
+                <div className="flex items-center justify-between gap-4 pt-4 border-t border-slate-100">
+                  <div className="space-y-0.5">
+                    <label className="text-sm font-semibold text-slate-800">透明背景</label>
+                    <p className="text-[11px] text-slate-400">开启后无底色、无边框，天气文字直接叠在壁纸上；关闭则显示玻璃卡片</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setLocalSettings({ ...localSettings, weatherTransparent: localSettings.weatherTransparent === false })}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors flex-shrink-0 ${
+                      localSettings.weatherTransparent !== false ? 'bg-[#ec5b13]' : 'bg-slate-200'
+                    }`}
+                  >
+                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                      localSettings.weatherTransparent !== false ? 'translate-x-6' : 'translate-x-1'
+                    }`} />
+                  </button>
+                </div>
+              </div>
+            </div>
             <div className="flex flex-col gap-3">
               <label className="text-sm font-semibold flex items-center gap-2">
                 <LayoutGrid className="w-4 h-4 text-slate-400" />
@@ -661,41 +659,13 @@ export default function Personalization() {
                     const newType = e.target.value;
                     let newSize = widgetForm.size;
                     if (newType !== 'search' && (newSize === '3x1' || newSize === '4x1')) newSize = '2x1';
-                    setWidgetForm({
-                      ...widgetForm,
-                      widgetType: newType,
-                      size: newSize,
-                      weatherLocation: widgetForm.weatherLocation || '北京',
-                      // 天气组件默认使用透明背景
-                      showBackground: newType === 'weather' ? false : widgetForm.showBackground,
-                    });
+                    setWidgetForm({ ...widgetForm, widgetType: newType, size: newSize });
                   }}
                 >
                   <option value="clock">{t.widgetClock || '时钟与日期'}</option>
                   <option value="search">{t.widgetSearch || '快速搜索'}</option>
-                  <option value="weather">{t.widgetWeather || '天气预报'}</option>
                 </select>
               </div>
-
-              {/* 天气组件：手动输入城市/地址 */}
-              {widgetForm.widgetType === 'weather' && (
-                <div className="animate-fade-in">
-                  <label className="text-sm font-semibold text-slate-700 flex items-center gap-1.5">
-                    <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                    城市 / 地址
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full mt-1.5 rounded-xl border-slate-200 bg-slate-50 px-4 py-3 outline-none border focus:ring-[#ec5b13] focus:border-[#ec5b13] transition-colors text-sm"
-                    placeholder="例如：北京、上海、杭州，或 39.90,116.40"
-                    value={widgetForm.weatherLocation || ''}
-                    onChange={(e) => setWidgetForm({ ...widgetForm, weatherLocation: e.target.value })}
-                  />
-                  <p className="text-[11px] text-slate-400 mt-1.5">
-                    天气组件将固定显示在首页右上角，界面为简体中文，支持中文地名或「纬度,经度」。
-                  </p>
-                </div>
-              )}
               <div>
                 <label className="text-sm font-semibold text-slate-700">{t.itemSizeLabel || '显示尺寸'}</label>
                 <div className="grid gap-2 mt-1.5" style={{ gridTemplateColumns: `repeat(${widgetForm.widgetType === 'search' ? 6 : 4}, minmax(0, 1fr))` }}>
@@ -718,13 +688,9 @@ export default function Personalization() {
               <div className="flex items-center justify-between pt-2 border-t border-slate-100">
                 <div className="space-y-0.5">
                   <label className="text-sm font-semibold text-slate-700">
-                    {widgetForm.widgetType === 'weather' ? '玻璃卡片背景' : (t.widgetBackgroundLabel || '卡片背景')}
+                    {t.widgetBackgroundLabel || '卡片背景'}
                   </label>
-                  <p className="text-[11px] text-slate-400">
-                    {widgetForm.widgetType === 'weather'
-                      ? '关闭即为透明背景，直接贴合壁纸；开启后显示玻璃卡片'
-                      : '开启后将显示白色半透明卡片背景'}
-                  </p>
+                  <p className="text-[11px] text-slate-400">开启后将显示白色半透明卡片背景</p>
                 </div>
                 <button
                   type="button"

@@ -22,6 +22,8 @@ interface WeatherWidgetProps {
   location?: string;
   /** 手机端折叠模式：默认只显示图标，点击后展开 */
   collapsible?: boolean;
+  /** 展开/常驻时卡片宽度类（右上角手机 190px、桌面 240px；组件流内默认 w-full） */
+  panelWidth?: string;
 }
 
 const ICONS: Record<WeatherIconKind, React.ComponentType<{ className?: string }>> = {
@@ -36,7 +38,7 @@ const ICONS: Record<WeatherIconKind, React.ComponentType<{ className?: string }>
 };
 
 export const WeatherWidget: React.FC<WeatherWidgetProps> = ({
-  size, showBackground, location, collapsible = false,
+  size, showBackground, location, collapsible = false, panelWidth = 'w-full',
 }) => {
   const target = (location || '北京').trim() || '北京';
   const [data, setData] = useState<WeatherSnapshot | null>(() => readWeatherCache(target));
@@ -111,10 +113,8 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({
   const showLoading = loading && !data;
   const showError = !loading && !!error && !data;
 
-  // 折叠态宽度由自身控制，避免透明容器在手机上挡住下层点击
-  const widthClass = collapsible
-    ? (expanded ? 'w-[190px] max-w-[52vw]' : 'w-11')
-    : 'w-full';
+  // 折叠态宽度由自身控制，避免透明容器在手机上挡住下层点击；桌面滚动收起时同理
+  const widthClass = collapsible && !expanded ? 'w-11' : panelWidth;
 
   return (
     <div ref={rootRef} className={`relative ${widthClass}`}>
@@ -123,7 +123,7 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({
         <button
           type="button"
           onClick={() => setExpanded(true)}
-          className={`w-11 h-11 rounded-full flex items-center justify-center cursor-pointer border transition-all duration-300 active:scale-95 ${
+          className={`w-11 h-11 rounded-full flex items-center justify-center cursor-pointer border transition-all duration-300 active:scale-95 animate-fade-in ${
             showBackground
               ? 'glass border-white/20 shadow-lg text-white hover:bg-white/10'
               : 'bg-black/35 backdrop-blur-md border-white/25 shadow-lg text-white hover:bg-black/50'

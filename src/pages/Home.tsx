@@ -86,6 +86,8 @@ export default function Home() {
   const [showPassword, setShowPassword] = useState(false);
   const [authError, setAuthError] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  // 是否离开页面顶部（只与滚动位置有关，不随滚动方向来回切换）
+  const [isPageScrolled, setIsPageScrolled] = useState(false);
   const [isAdmin, setIsAdmin] = useState(() => sessionStorage.getItem('yunest_auth') === 'true');
   const [isBgLoaded, setIsBgLoaded] = useState(false);
   const [contextMenu, setContextMenu] = useState<{ x: number, y: number, bookmark: any } | null>(null);
@@ -173,11 +175,14 @@ export default function Home() {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       const safeScrollY = Math.max(0, currentScrollY);
+      setIsPageScrolled(safeScrollY > 20);
       if (safeScrollY <= 20) setIsScrolled(false);
       else if (safeScrollY > lastScrollY) setIsScrolled(true);
       else if (safeScrollY < lastScrollY) setIsScrolled(false);
       lastScrollY = safeScrollY;
     };
+    // 刷新时浏览器可能保留滚动位置，需同步初始状态
+    setIsPageScrolled(Math.max(0, window.scrollY) > 20);
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -418,10 +423,10 @@ export default function Home() {
         )}
       </div>
 
-      {/* 页面右上角固定天气组件 */}
+      {/* 页面右上角固定天气组件：桌面端离开页面顶部后自动收成小图标，避免滚动时遮挡内容 */}
       {cornerWeatherList.length > 0 && (
-        <div className={`fixed z-40 flex flex-col items-end gap-3 ${
-          isMobile ? 'top-16 right-3 w-auto max-w-[calc(100vw-1.5rem)]' : 'top-5 right-5 w-[240px]'
+        <div className={`fixed z-40 flex flex-col items-end gap-3 max-w-[calc(100vw-1.5rem)] transition-all duration-300 ${
+          isMobile ? 'top-16 right-3' : 'top-5 right-5'
         }`}>
           {cornerWeatherList.map(w => (
             <WeatherWidget
@@ -429,7 +434,8 @@ export default function Home() {
               size="2x1"
               showBackground={!w.transparent}
               location={w.location}
-              collapsible={isMobile}
+              collapsible={isMobile || isPageScrolled}
+              panelWidth={isMobile ? 'w-[190px] max-w-[52vw]' : 'w-[240px]'}
             />
           ))}
         </div>
