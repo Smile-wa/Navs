@@ -15,7 +15,13 @@ export const WidgetRenderer: React.FC<WidgetRendererProps> = ({ bookmark }) => {
     case 'search':
       return <SearchWidget size={bookmark.size || '1x1'} showBackground={bookmark.showBackground} />;
     case 'weather':
-      return <WeatherWidget size={bookmark.size || '1x1'} />;
+      return (
+        <WeatherWidget
+          size={bookmark.size || '1x1'}
+          showBackground={bookmark.showBackground}
+          location={bookmark.weatherLocation}
+        />
+      );
     default:
       return (
         <div className="w-full h-full bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-white/50 text-sm">

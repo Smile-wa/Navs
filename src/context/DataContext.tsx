@@ -22,6 +22,8 @@ export interface Bookmark {
   widgetConfig?: any;
   showBackground?: boolean;
   wrapLine?: boolean;
+  /** 天气组件：手动输入的城市/地址（支持中文地名或 纬度,经度） */
+  weatherLocation?: string;
 }
 
 export interface Category {
@@ -53,6 +55,12 @@ export interface Settings {
   githubSync?: boolean;
   widgetAlignment?: 'left' | 'center' | 'right';
   widgetBackground?: boolean;
+  /** 首页右上角天气组件 */
+  showWeather?: boolean;
+  /** 天气组件：城市/地址（中文地名或 纬度,经度） */
+  weatherLocation?: string;
+  /** 天气组件：是否使用透明背景（默认透明） */
+  weatherTransparent?: boolean;
   /** 前台书签卡片高度（px，60-200） */
   cardHeight?: number;
   /** 前台书签卡片宽度（px，120-400） */
@@ -94,6 +102,10 @@ export const DEFAULT_SETTINGS: Settings = {
   githubSync: true,
   widgetAlignment: 'center',
   widgetBackground: false,
+  // ===== 首页右上角天气组件 =====
+  showWeather: true,
+  weatherLocation: '北京',
+  weatherTransparent: true,
   // ===== 前台卡片尺寸 =====
   cardHeight: 80,
   cardWidth: 240,

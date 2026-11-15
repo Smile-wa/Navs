@@ -23,6 +23,7 @@ import { useNavigate } from 'react-router-dom';
 import * as Icons from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations.ts';
 import { WidgetRenderer } from '../components/widgets/WidgetRenderer.tsx';
+import { WeatherWidget } from '../components/widgets/WeatherWidget.tsx';
 import { getFaviconProxyUrl, normalizeIconUrl } from '../lib/favicon.ts';
 import { isEmojiIcon, isIconifyIcon } from '../lib/icon.ts';
 import { FaviconImg } from '../components/FaviconImg.tsx';
@@ -127,6 +128,28 @@ export default function Home() {
     if (activeSidebarId === 'all') return sidebarCategories;
     return sidebarCategories.filter(c => c.id === activeSidebarId);
   }, [sidebarCategories, activeSidebarId]);
+
+  // 天气组件固定显示在页面右上角，不参与组件流布局
+  const flowWidgets = useMemo(
+    () => (widgets || []).filter(w => w.widgetType !== 'weather'),
+    [widgets]
+  );
+  const cornerWeatherList = useMemo(() => {
+    const configured = (widgets || []).filter(w => w.widgetType === 'weather');
+    if (configured.length > 0) {
+      return configured.map(w => ({
+        id: w.id,
+        location: w.weatherLocation || settings.weatherLocation || '北京',
+        transparent: !w.showBackground,
+      }));
+    }
+    if (settings.showWeather === false) return [];
+    return [{
+      id: 'builtin-corner-weather',
+      location: settings.weatherLocation || '北京',
+      transparent: settings.weatherTransparent !== false,
+    }];
+  }, [widgets, settings.showWeather, settings.weatherLocation, settings.weatherTransparent]);
 
   const handleContextMenu = (e: React.MouseEvent, bookmark: any) => {
     if (bookmark.lanUrl) {
@@ -395,6 +418,22 @@ export default function Home() {
         )}
       </div>
 
+      {/* 页面右上角固定天气组件 */}
+      {cornerWeatherList.length > 0 && (
+        <div className={`fixed z-40 flex flex-col gap-3 ${
+          isMobile ? 'top-16 right-3 w-[190px] max-w-[52vw]' : 'top-5 right-5 w-[240px]'
+        }`}>
+          {cornerWeatherList.map(w => (
+            <WeatherWidget
+              key={w.id}
+              size="2x1"
+              showBackground={!w.transparent}
+              location={w.location}
+            />
+          ))}
+        </div>
+      )}
+
       {/* 移动端汉堡按钮 */}
       <div className={`fixed top-4 left-4 z-50 md:hidden transition-all duration-500 ${
         isScrolled ? 'opacity-0 -translate-y-2 pointer-events-none' : 'opacity-100 translate-y-0'
@@ -466,8 +505,8 @@ export default function Home() {
             </header>
           )}
 
-          {/* 小组件区域 */}
-          {widgets && widgets.length > 0 && (
+          {/* 小组件区域（天气组件已移至右上角） */}
+          {flowWidgets.length > 0 && (
             <div
               className={`w-full max-w-7xl mb-6 animate-fade-in flex relative z-40 ${
                 settings.widgetAlignment === 'left' ? 'justify-start' :
@@ -483,7 +522,7 @@ export default function Home() {
                                   settings.widgetAlignment === 'right' ? 'flex-end' : 'center'
                 }}
               >
-                {widgets.map((widget, index) => {
+                {flowWidgets.map((widget, index) => {
                   const widthClass =
                     widget.size?.startsWith('4x') ? 'widget-width-4x' :
                     widget.size?.startsWith('3x') ? 'widget-width-3x' :
