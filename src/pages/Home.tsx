@@ -420,8 +420,8 @@ export default function Home() {
 
       {/* 页面右上角固定天气组件 */}
       {cornerWeatherList.length > 0 && (
-        <div className={`fixed z-40 flex flex-col gap-3 ${
-          isMobile ? 'top-16 right-3 w-[190px] max-w-[52vw]' : 'top-5 right-5 w-[240px]'
+        <div className={`fixed z-40 flex flex-col items-end gap-3 ${
+          isMobile ? 'top-16 right-3 w-auto max-w-[calc(100vw-1.5rem)]' : 'top-5 right-5 w-[240px]'
         }`}>
           {cornerWeatherList.map(w => (
             <WeatherWidget
@@ -429,6 +429,7 @@ export default function Home() {
               size="2x1"
               showBackground={!w.transparent}
               location={w.location}
+              collapsible={isMobile}
             />
           ))}
         </div>
