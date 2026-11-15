@@ -7,8 +7,8 @@ import { useState, useEffect } from 'react';
 import { Outlet, NavLink, Link, useNavigate } from 'react-router-dom';
 import { 
   Settings, Tags, RefreshCw, Home, Menu, X, 
-  Image as ImageIcon, MessageCircle, BookOpen, ExternalLink, Github,
-  FolderTree // 新增：分类图标
+  Palette, MessageCircle, BookOpen, ExternalLink, Github,
+  FolderTree // 分类图标
 } from 'lucide-react';
 import { useData } from '../../context/DataContext.tsx';
 import { TRANSLATIONS } from '../../i18n/translations.ts';
@@ -20,10 +20,12 @@ export default function AdminLayout() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const NAV_ITEMS = [
-    { to: '/admin/settings', icon: Settings, label: t.navPersonalization },
-    { to: '/admin/categories', icon: FolderTree, label: '分类管理' }, // 新增
-    { to: '/admin/bookmarks', icon: Tags, label: '书签管理' },        // 原“管理标签”
-    { to: '/admin/wallpaper', icon: ImageIcon, label: t.navWallpaper },
+    // 基本设置：站点名称、搜索引擎、语言、时区等基础信息
+    { to: '/admin/settings', icon: Settings, label: t.basicSettings },
+    // 个性化设置：壁纸与背景、玻璃效果、卡片尺寸、小组件
+    { to: '/admin/personalization', icon: Palette, label: t.navPersonalization },
+    { to: '/admin/categories', icon: FolderTree, label: '分类管理' },
+    { to: '/admin/bookmarks', icon: Tags, label: '书签管理' },
     { to: '/admin/backup', icon: RefreshCw, label: t.navBackup },
     { to: '/admin/feedback', icon: MessageCircle, label: t.navFeedback },
   ];
