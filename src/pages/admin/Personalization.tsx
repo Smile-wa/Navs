@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { TRANSLATIONS } from '../../i18n/translations.ts';
 import ConfirmModal from '../../components/ConfirmModal.tsx';
+import HomePreview from '../../components/HomePreview.tsx';
 
 export default function Personalization() {
   const { state, updateSettings, addWidget, updateWidget, deleteWidget, reorderWidgets } = useData();
@@ -136,6 +137,14 @@ export default function Personalization() {
       </header>
 
       <div className="space-y-12 pb-24">
+        {/* ===== 前台效果实时预览（含未保存的改动） ===== */}
+        <HomePreview
+          settings={localSettings}
+          widgets={state.widgets || []}
+          categories={state.categories || []}
+          isZh={isZh}
+        />
+
         {/* ===== 壁纸与背景 ===== */}
         <section>
           <div className="flex items-center gap-2 mb-6">

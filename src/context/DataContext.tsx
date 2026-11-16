@@ -147,6 +147,33 @@ const DataContext = createContext<DataContextType | undefined>(undefined);
 
 export function DataProvider({ children }: { children: React.ReactNode }) {
   const [isReady, setIsReady] = useState(false);
+
+  /**
+   * 后台「个性化设置」实时预览：
+   * 仅当页面以 ?preview=1 打开（预览 iframe）时启用。父窗口通过 postMessage
+   * 推送当前未保存的设置/小组件/分类，用它们覆盖本地 state，不写入 localStorage。
+   */
+  const [previewOverride, setPreviewOverride] = useState<Partial<AppState> | null>(null);
+
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('preview') !== '1') return;
+    const onMessage = (e: MessageEvent) => {
+      if (e.origin !== window.location.origin) return;
+      const data = e.data;
+      if (!data || data.type !== 'NAVS_PREVIEW_SETTINGS') return;
+      const override: Partial<AppState> = {};
+      if (data.settings && typeof data.settings === 'object') override.settings = data.settings;
+      if (Array.isArray(data.widgets)) override.widgets = data.widgets;
+      if (Array.isArray(data.categories)) override.categories = data.categories;
+      setPreviewOverride(override);
+    };
+    window.addEventListener('message', onMessage);
+    try {
+      window.parent?.postMessage({ type: 'NAVS_PREVIEW_READY' }, window.location.origin);
+    } catch { /* 非 iframe 场景忽略 */ }
+    return () => window.removeEventListener('message', onMessage);
+  }, []);
+
   const [state, setState] = useState<AppState>(() => {
     const saved = localStorage.getItem('yunest_data');
     if (saved) {
@@ -594,10 +621,19 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     return true;
   }, [importData, state.settings.githubToken, state.settings.githubRepo]);
 
+  // 预览模式下使用父窗口推送的数据，其它场景完全不受影响
+  const effectiveState: AppState = previewOverride
+    ? {
+        ...state,
+        ...previewOverride,
+        settings: { ...state.settings, ...(previewOverride.settings || {}) },
+      }
+    : state;
+
   return (
     <DataContext.Provider
       value={{
-        state,
+        state: effectiveState,
         updateSettings,
         addCategory,
         updateCategory,
