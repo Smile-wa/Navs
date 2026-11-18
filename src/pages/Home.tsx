@@ -290,7 +290,22 @@ export default function Home() {
 
     return (
       <div className={`flex flex-col w-full h-full ${isMobileMode ? 'gap-1.5 px-3 py-4 rounded-3xl glass shadow-2xl' : ''}`}>
-        <div className="flex-1 flex flex-col justify-center items-center w-full overflow-hidden px-3 py-4">
+        {/* 网站图标 + 名称：置于侧边栏顶部居中，图标与名称左右排列（折叠时只显示图标） */}
+        <div className="flex items-center justify-center gap-2.5 px-3 pt-4 pb-3 flex-shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center overflow-hidden shadow-lg backdrop-blur-sm shrink-0">
+            {settings.siteLogo ? (
+              <img src={settings.siteLogo} alt="logo" className="w-full h-full object-contain" />
+            ) : (
+              <img src="/favicon.svg" alt="logo" className="w-5 h-5 brightness-0 invert" />
+            )}
+          </div>
+          {!collapsed && (
+            <span className="text-base font-bold tracking-wide text-white/90 drop-shadow-[0_1px_3px_rgba(0,0,0,0.7)] truncate min-w-0">
+              {settings.siteName}
+            </span>
+          )}
+        </div>
+        <div className="flex-1 flex flex-col justify-center items-center w-full overflow-hidden px-3 py-2 min-h-0">
           <div className="flex flex-col items-center gap-1.5 w-full overflow-y-auto sidebar-scroll" style={{ maxHeight: '100%' }}>
             <div
               onClick={() => handleSelectCategory('all')}
@@ -454,8 +469,8 @@ export default function Home() {
         </button>
       </div>
 
-      {/* 桌面端侧边栏 */}
-      <aside className={`hidden md:flex fixed left-0 top-0 bottom-0 z-30 flex-col transition-all duration-300 ease-in-out ${sidebarWidth}`}>
+      {/* 桌面端侧边栏：悬浮玻璃面板 + 圆角 */}
+      <aside className={`hidden md:flex fixed left-3 top-3 bottom-3 z-30 flex-col overflow-hidden rounded-3xl glass shadow-2xl transition-all duration-300 ease-in-out ${sidebarWidth}`}>
         {renderSidebarContent(false)}
       </aside>
 
@@ -484,30 +499,39 @@ export default function Home() {
         </div>
       </aside>
 
-      {/* 右侧主内容区 */}
+      {/* 右侧主内容区：悬浮玻璃面板 + 圆角 */}
       <div
         className={`relative z-10 flex min-h-screen transition-all duration-300 ${
-          !isMobile && (isCollapsed ? 'md:pl-[72px]' : 'md:pl-[230px]')
+          !isMobile && (isCollapsed ? 'md:pl-[84px]' : 'md:pl-[242px]')
         } w-full`}
         style={{ minWidth: 0 }}
       >
         <main
-          className={`flex-1 flex flex-col items-center justify-start min-h-screen w-full ${
-            isMobile ? 'px-3 pt-20' : 'px-4 sm:px-6 pt-16 sm:pt-24'
+          className={`flex-1 flex flex-col items-center justify-start w-full glass shadow-2xl overflow-hidden ${
+            isMobile
+              ? 'mx-2 my-3 rounded-3xl min-h-[calc(100vh-1.5rem)] px-3 pt-20 pb-6'
+              : 'mx-3 my-3 rounded-3xl min-h-[calc(100vh-1.5rem)] px-4 sm:px-6 pt-10 sm:pt-12 pb-8'
           }`}
           style={{ minWidth: 0 }}
         >
-          {/* 移动端顶部标题 */}
+          {/* 移动端顶部标题（左上角图标 + 站点名，与桌面端一致） */}
           {isMobile && (
-            <header className="text-center mb-6 animate-fade-in" style={{ animationDelay: '0.1s' }}>
+            <header className="self-start ml-1 mb-6 animate-fade-in" style={{ animationDelay: '0.1s' }}>
               <a
-                href="https://myblog.xwgt.xyz"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1 text-xs font-bold tracking-[0.4em] text-white/40 hover:text-white/80 uppercase no-underline transition-colors"
-                title="访问我的博客"
+                href="/#/"
+                className="inline-flex items-center gap-2.5 no-underline transition-opacity hover:opacity-80"
+                title={settings.siteName}
               >
-                {settings.siteName}
+                <span className="w-8 h-8 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center overflow-hidden shadow-lg backdrop-blur-sm shrink-0">
+                  {settings.siteLogo ? (
+                    <img src={settings.siteLogo} alt="logo" className="w-full h-full object-contain" />
+                  ) : (
+                    <img src="/favicon.svg" alt="logo" className="w-5 h-5 brightness-0 invert" />
+                  )}
+                </span>
+                <span className="text-base font-bold tracking-wide text-white/90 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                  {settings.siteName}
+                </span>
               </a>
             </header>
           )}

@@ -137,7 +137,7 @@ export default function Personalization() {
       </header>
 
       <div className="space-y-12 pb-24">
-        {/* ===== 前台效果实时预览（含未保存的改动） ===== */}
+        {/* ===== 前台效果实时预览（含未保存的改动）：置于最上方 ===== */}
         <HomePreview
           settings={localSettings}
           widgets={state.widgets || []}

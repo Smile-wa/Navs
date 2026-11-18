@@ -4,9 +4,9 @@
  *       壁纸、外观与布局相关配置已移至「个性化设置」页面
  */
 
-import { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useData, PRESET_SEARCH_ENGINES, DEFAULT_SETTINGS } from '../../context/DataContext.tsx';
-import { Settings as SettingsIcon, Search, CheckCircle, Globe, HelpCircle } from 'lucide-react';
+import { Settings as SettingsIcon, Search, CheckCircle, Globe, HelpCircle, Upload, Image as ImageIcon, X } from 'lucide-react';
 import { TRANSLATIONS } from '../../i18n/translations.ts';
 import ConfirmModal from '../../components/ConfirmModal.tsx';
 
@@ -17,6 +17,23 @@ export default function Settings() {
   const isZh = (state.settings.language || 'zh-CN') === 'zh-CN';
   const [saved, setSaved] = useState(false);
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
+  const logoInputRef = useRef<HTMLInputElement>(null);
+
+  // 搜索引擎下拉值：预设 url 用 url 本身，自定义统一为 '__custom__'
+  const SEARCH_CUSTOM_VALUE = '__custom__';
+  const isPresetEngine = (url: string) => PRESET_SEARCH_ENGINES.some(e => e.url === url);
+  const searchSelectValue = isPresetEngine(localSettings.searchEngine) ? localSettings.searchEngine : SEARCH_CUSTOM_VALUE;
+
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) { alert(isZh ? '图标大小不能超过 2MB' : 'Logo size must be under 2MB'); return; }
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setLocalSettings({ ...localSettings, siteLogo: event.target?.result as string });
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleSave = () => {
     updateSettings(localSettings);
@@ -31,6 +48,7 @@ export default function Settings() {
     setLocalSettings({
       ...localSettings,
       siteName: DEFAULT_SETTINGS.siteName,
+      siteLogo: DEFAULT_SETTINGS.siteLogo,
       searchEngine: DEFAULT_SETTINGS.searchEngine,
       language: DEFAULT_SETTINGS.language,
       timezone: DEFAULT_SETTINGS.timezone,
@@ -70,6 +88,49 @@ export default function Settings() {
               />
             </div>
 
+            {/* 网站图标 */}
+            <div className="flex flex-col gap-2 pt-4 border-t border-slate-100">
+              <label className="text-sm font-semibold flex items-center gap-2">
+                <ImageIcon className="w-4 h-4 text-slate-400" />
+                {t.siteLogoLabel}
+              </label>
+              <div className="flex items-center gap-4">
+                <div
+                  className="w-16 h-16 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center overflow-hidden shrink-0 cursor-pointer hover:border-[#ec5b13]/50 transition-colors"
+                  onClick={() => logoInputRef.current?.click()}
+                  title={t.siteLogoUpload}
+                >
+                  {localSettings.siteLogo ? (
+                    <img src={localSettings.siteLogo} alt="logo" className="w-full h-full object-contain" />
+                  ) : (
+                    <ImageIcon className="w-7 h-7 text-slate-300" />
+                  )}
+                </div>
+                <div className="flex flex-col gap-2 min-w-0">
+                  <button
+                    type="button"
+                    onClick={() => logoInputRef.current?.click()}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#ec5b13]/10 text-[#ec5b13] font-semibold text-sm hover:bg-[#ec5b13]/20 transition-colors w-fit"
+                  >
+                    <Upload className="w-4 h-4" />
+                    {t.siteLogoUpload}
+                  </button>
+                  {localSettings.siteLogo && (
+                    <button
+                      type="button"
+                      onClick={() => setLocalSettings({ ...localSettings, siteLogo: '' })}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors text-xs w-fit"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                      {t.removeLogo || '移除图标'}
+                    </button>
+                  )}
+                  <p className="text-xs text-slate-400">{t.siteLogoDesc}</p>
+                </div>
+                <input ref={logoInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
+              </div>
+            </div>
+
             {/* 默认搜索引擎 */}
             <div className="flex flex-col gap-4 pt-4 border-t border-slate-100">
               <label className="text-sm font-semibold flex items-center gap-2">
@@ -77,59 +138,32 @@ export default function Settings() {
                 {t.searchEngineLabel}
               </label>
 
-              <div className="flex overflow-x-auto pb-4 gap-4 px-1 -mx-1 scrollbar-hide">
+              <select
+                id="setting-search-engine"
+                className="w-full rounded-xl border-slate-200 bg-slate-50 focus:ring-[#ec5b13] focus:border-[#ec5b13] px-4 py-3 outline-none border transition-colors text-sm font-medium cursor-pointer"
+                value={searchSelectValue}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setLocalSettings({
+                    ...localSettings,
+                    searchEngine: value === SEARCH_CUSTOM_VALUE
+                      ? (isPresetEngine(localSettings.searchEngine) ? '' : localSettings.searchEngine)
+                      : value,
+                  });
+                }}
+              >
                 {PRESET_SEARCH_ENGINES.map((engine) => (
-                  <button
-                    key={engine.id}
-                    type="button"
-                    onClick={() => setLocalSettings({ ...localSettings, searchEngine: engine.url })}
-                    className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all shrink-0 min-w-[72px] ${
-                      localSettings.searchEngine === engine.url
-                        ? 'bg-[#ec5b13]/10 border-[#ec5b13] ring-1 ring-[#ec5b13]'
-                        : 'bg-white border-slate-200 hover:border-[#ec5b13]/50'
-                    }`}
-                  >
-                    <img src={engine.icon} alt={engine.name} className="w-8 h-8 rounded-md" />
-                    <span className={`text-xs font-medium ${
-                      localSettings.searchEngine === engine.url ? 'text-[#ec5b13]' : 'text-slate-500'
-                    }`}>
-                      {engine.name}
-                    </span>
-                  </button>
+                  <option key={engine.id} value={engine.url}>{engine.name}</option>
                 ))}
+                <option value={SEARCH_CUSTOM_VALUE}>{t.searchEngineOther || '其他（手动输入）'}</option>
+              </select>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (PRESET_SEARCH_ENGINES.some(e => e.url === localSettings.searchEngine)) {
-                      setLocalSettings({ ...localSettings, searchEngine: '' });
-                    }
-                  }}
-                  className={`flex flex-col items-center justify-center gap-2 p-3 rounded-xl border transition-all shrink-0 min-w-[72px] ${
-                    !PRESET_SEARCH_ENGINES.some(e => e.url === localSettings.searchEngine)
-                      ? 'bg-[#ec5b13]/10 border-[#ec5b13] ring-1 ring-[#ec5b13]'
-                      : 'bg-white border-slate-200 hover:border-[#ec5b13]/50'
-                  }`}
-                >
-                  <div className={`w-8 h-8 rounded-md flex items-center justify-center bg-slate-50 border border-slate-100 ${
-                    !PRESET_SEARCH_ENGINES.some(e => e.url === localSettings.searchEngine) ? 'text-[#ec5b13]' : 'text-slate-400'
-                  }`}>
-                    <Search className="w-4 h-4" />
-                  </div>
-                  <span className={`text-xs font-medium ${
-                    !PRESET_SEARCH_ENGINES.some(e => e.url === localSettings.searchEngine) ? 'text-[#ec5b13]' : 'text-slate-500'
-                  }`}>
-                    {t.searchEngineOther || '其他'}
-                  </span>
-                </button>
-              </div>
-
-              {!PRESET_SEARCH_ENGINES.some(e => e.url === localSettings.searchEngine) && (
+              {!isPresetEngine(localSettings.searchEngine) && (
                 <div className="space-y-2 animate-fade-in">
                   <p className="text-xs font-medium text-slate-400">{t.searchEngineManual}</p>
                   <input
                     type="text"
-                    id="setting-search-engine"
+                    id="setting-search-engine-url"
                     className="w-full rounded-xl border-slate-200 bg-slate-50 focus:ring-[#ec5b13] focus:border-[#ec5b13] px-4 py-3 outline-none border transition-colors text-sm"
                     placeholder="例如: https://www.google.com/search?q="
                     value={localSettings.searchEngine}

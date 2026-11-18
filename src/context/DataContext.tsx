@@ -37,6 +37,8 @@ export interface Category {
 
 export interface Settings {
   siteName: string;
+  /** 网站图标（data URL 或图片地址，首页左上角展示） */
+  siteLogo?: string;
   wallpaperType: 'fixed' | 'api' | 'local' | 'color';
   wallpaperUrl: string;
   localWallpaper: string;
@@ -84,6 +86,7 @@ export const PRESET_SEARCH_ENGINES = [
 /** 默认个性化设置 */
 export const DEFAULT_SETTINGS: Settings = {
   siteName: 'YuNest',
+  siteLogo: '',
   wallpaperType: 'fixed',
   wallpaperUrl: 'https://img.072199.xyz/file/wallpaper/1773289345749.webp',
   localWallpaper: '',

@@ -64,7 +64,7 @@ export default function AdminLayout() {
             title={t.backToHome}
           >
             <div className="w-10 h-10 rounded-xl bg-[#ec5b13] flex items-center justify-center overflow-hidden shadow-md shadow-[#ec5b13]/20 group-hover:scale-105 group-hover:shadow-lg group-hover:shadow-[#ec5b13]/30 transition-all duration-200 shrink-0">
-              <img src="/favicon.svg" alt="logo" className="w-6 h-6 filter brightness-0 invert" />
+              <img src={state.settings.siteLogo || '/favicon.svg'} alt="logo" className={`w-6 h-6 object-contain ${state.settings.siteLogo ? '' : 'filter brightness-0 invert'}`} />
             </div>
             <div className="min-w-0 flex-1">
               <h1 className="text-base font-bold tracking-tight text-slate-900 truncate group-hover:text-[#ec5b13] transition-colors">
@@ -127,7 +127,7 @@ export default function AdminLayout() {
             </button>
             <Link to="/" className="flex items-center gap-2">
               <div className="w-7 h-7 rounded-lg bg-[#ec5b13] flex items-center justify-center overflow-hidden">
-                <img src="/favicon.svg" alt="logo" className="w-5 h-5 filter brightness-0 invert" />
+                <img src={state.settings.siteLogo || '/favicon.svg'} alt="logo" className={`w-5 h-5 object-contain ${state.settings.siteLogo ? '' : 'filter brightness-0 invert'}`} />
               </div>
               <span className="text-sm font-bold text-slate-900">{state.settings.siteName}</span>
             </Link>

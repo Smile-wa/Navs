@@ -22,8 +22,10 @@ type PreviewMode = 'desktop' | 'mobile';
 
 /** iframe 内部布局视口尺寸（手机模式会限制外框宽度，避免放得过大） */
 const FRAME: Record<PreviewMode, { width: number; height: number; maxWidth: number }> = {
-  desktop: { width: 1280, height: 620, maxWidth: Number.POSITIVE_INFINITY },
-  mobile: { width: 390, height: 640, maxWidth: 300 },
+  // 桌面：16:10 左右的页面视口，缩放后高度与真实首页更接近
+  desktop: { width: 1280, height: 780, maxWidth: Number.POSITIVE_INFINITY },
+  // 手机：接近主流手机屏幕比例
+  mobile: { width: 390, height: 720, maxWidth: 300 },
 };
 
 export default function HomePreview({ settings, widgets, categories, isZh = true }: HomePreviewProps) {
