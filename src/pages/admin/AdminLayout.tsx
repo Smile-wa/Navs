@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Outlet, NavLink, Link, useNavigate } from 'react-router-dom';
+import { Outlet, NavLink, Link, useNavigate, useLocation } from 'react-router-dom';
 import { 
   Settings, Tags, RefreshCw, Home, Menu, X, 
   Palette, MessageCircle, BookOpen, ExternalLink, Github,
@@ -17,6 +17,10 @@ export default function AdminLayout() {
   const { state } = useData();
   const t = TRANSLATIONS[state.settings.language || 'zh-CN'];
   const navigate = useNavigate();
+  const location = useLocation();
+  // 个性化设置页右侧预览使用 sticky 固定：需要由页面（document）滚动，
+  // 因此该页不把 main 设为独立滚动容器；其余后台页保持原有行为
+  const isPersonalization = location.pathname.startsWith('/admin/personalization');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const NAV_ITEMS = [
@@ -155,7 +159,7 @@ export default function AdminLayout() {
           </div>
         </div>
 
-        <main className="flex-1 min-w-0 overflow-auto flex flex-col">
+        <main className={`flex-1 min-w-0 flex flex-col ${isPersonalization ? '' : 'overflow-auto'}`}>
           <div className="flex-1">
             <Outlet />
           </div>
