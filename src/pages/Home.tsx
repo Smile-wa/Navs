@@ -126,10 +126,8 @@ export default function Home() {
       .filter(c => !c.isHidden || isAdmin);
   }, [categories, isAdmin]);
 
-  const visibleCategories = useMemo(() => {
-    if (activeSidebarId === 'all') return sidebarCategories;
-    return sidebarCategories.filter(c => c.id === activeSidebarId);
-  }, [sidebarCategories, activeSidebarId]);
+  // 所有分类始终全部展示；侧边栏点击只做高亮 + 滚动定位，不再过滤内容
+  const visibleCategories = sidebarCategories;
 
   // 天气组件固定显示在页面右上角，不参与组件流布局
   const flowWidgets = useMemo(
@@ -199,6 +197,18 @@ export default function Home() {
   const handleSelectCategory = (id: string) => {
     setActiveSidebarId(id);
     setIsMobileSidebarOpen(false);
+    // 平滑滚动定位到对应分类区块（而不是只显示选中的分类）
+    window.requestAnimationFrame(() => {
+      if (id === 'all') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+      const el = document.getElementById(`category-${id}`);
+      if (el) {
+        const top = el.getBoundingClientRect().top + window.scrollY - 24;
+        window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+      }
+    });
   };
 
   const bgUrl = useMemo(() => {
@@ -579,13 +589,14 @@ export default function Home() {
           <div className={`w-full flex flex-col pb-24 px-0 sm:px-1 ${isMobile ? 'gap-10' : 'gap-14'}`}>
             {visibleCategories.length === 0 ? (
               <div className="text-center text-white/40 text-base py-20 animate-fade-in">
-                该分类下暂无内容
+                暂无分类内容
               </div>
             ) : (
               visibleCategories.map((category, catIndex) => (
                 <section
                   key={category.id}
-                  className="animate-fade-in-scale"
+                  id={`category-${category.id}`}
+                  className="animate-fade-in-scale scroll-mt-6"
                   style={{ animationDelay: `${0.4 + catIndex * 0.1}s` }}
                 >
                   <h2 className={`font-bold flex items-center gap-3 ${isMobile ? 'text-sm px-1 mb-4' : 'text-base sm:text-lg px-3 mb-6'}`}>
